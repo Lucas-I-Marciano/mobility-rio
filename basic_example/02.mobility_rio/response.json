@@ -1,0 +1,842 @@
+[
+  {
+    "ordem": "A29084",
+    "latitude": "-22,93993",
+    "longitude": "-43,20006",
+    "datahora": "1745363568000",
+    "velocidade": "0",
+    "linha": "584",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363595000"
+  },
+  {
+    "ordem": "A29029",
+    "latitude": "-22,9067",
+    "longitude": "-43,19679",
+    "datahora": "1745363569000",
+    "velocidade": "0",
+    "linha": "210",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363595000"
+  },
+  {
+    "ordem": "A29045",
+    "latitude": "-22,84384",
+    "longitude": "-43,26215",
+    "datahora": "1745363570000",
+    "velocidade": "0",
+    "linha": "350",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363595000"
+  },
+  {
+    "ordem": "A29008",
+    "latitude": "-22,89962",
+    "longitude": "-43,25831",
+    "datahora": "1745363566000",
+    "velocidade": "12",
+    "linha": "474",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363595000"
+  },
+  {
+    "ordem": "A29188",
+    "latitude": "-22,90077",
+    "longitude": "-43,20993",
+    "datahora": "1745363482000",
+    "velocidade": "0",
+    "linha": "275",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363595000"
+  },
+  {
+    "ordem": "A29064",
+    "latitude": "-22,86539",
+    "longitude": "-43,29787",
+    "datahora": "1745363570000",
+    "velocidade": "0",
+    "linha": "292",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363595000"
+  },
+  {
+    "ordem": "A29033",
+    "latitude": "-22,91098",
+    "longitude": "-43,21384",
+    "datahora": "1745363569000",
+    "velocidade": "37",
+    "linha": "461",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363595000"
+  },
+  {
+    "ordem": "B28607",
+    "latitude": "-22,90284",
+    "longitude": "-43,20986",
+    "datahora": "1745363510000",
+    "velocidade": "0",
+    "linha": "329",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28598",
+    "latitude": "-22,79076",
+    "longitude": "-43,18107",
+    "datahora": "1745363569000",
+    "velocidade": "0",
+    "linha": "329",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28616",
+    "latitude": "-22,78775",
+    "longitude": "-43,18435",
+    "datahora": "1745363569000",
+    "velocidade": "17",
+    "linha": "329",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28588",
+    "latitude": "-22,79947",
+    "longitude": "-43,20279",
+    "datahora": "1745363568000",
+    "velocidade": "12",
+    "linha": "326",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28584",
+    "latitude": "-22,96515",
+    "longitude": "-43,17336",
+    "datahora": "1745363569000",
+    "velocidade": "14",
+    "linha": "492",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28622",
+    "latitude": "-22,79832",
+    "longitude": "-43,18844",
+    "datahora": "1745363570000",
+    "velocidade": "16",
+    "linha": "SP329",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28580",
+    "latitude": "-22,81601",
+    "longitude": "-43,18795",
+    "datahora": "1745363569000",
+    "velocidade": "0",
+    "linha": "324",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28558",
+    "latitude": "-22,88822",
+    "longitude": "-43,22499",
+    "datahora": "1745363570000",
+    "velocidade": "55",
+    "linha": "492",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28548",
+    "latitude": "-22,84213",
+    "longitude": "-43,23651",
+    "datahora": "1745363569000",
+    "velocidade": "30",
+    "linha": "321",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28541",
+    "latitude": "-22,82386",
+    "longitude": "-43,23153",
+    "datahora": "1745363571000",
+    "velocidade": "54",
+    "linha": "329",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28612",
+    "latitude": "-22,90635",
+    "longitude": "-43,19582",
+    "datahora": "1745363572000",
+    "velocidade": "0",
+    "linha": "321",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28545",
+    "latitude": "-22,79951",
+    "longitude": "-43,18636",
+    "datahora": "1745363571000",
+    "velocidade": "32",
+    "linha": "696",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28562",
+    "latitude": "-22,82554",
+    "longitude": "-43,1694",
+    "datahora": "1745363573000",
+    "velocidade": "0",
+    "linha": "325",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28571",
+    "latitude": "-22,81511",
+    "longitude": "-43,18836",
+    "datahora": "1745363575000",
+    "velocidade": "0",
+    "linha": "GARAGEM",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28503",
+    "latitude": "-22,7951",
+    "longitude": "-43,20293",
+    "datahora": "1745363574000",
+    "velocidade": "0",
+    "linha": "696",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28617",
+    "latitude": "-22,81563",
+    "longitude": "-43,18773",
+    "datahora": "1745363574000",
+    "velocidade": "0",
+    "linha": "329",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28623",
+    "latitude": "-22,83945",
+    "longitude": "-43,23944",
+    "datahora": "1745363574000",
+    "velocidade": "0",
+    "linha": "SP324",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28576",
+    "latitude": "-22,9066",
+    "longitude": "-43,20937",
+    "datahora": "1745363577000",
+    "velocidade": "31",
+    "linha": "321",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28632",
+    "latitude": "-22,82572",
+    "longitude": "-43,16925",
+    "datahora": "1745363578000",
+    "velocidade": "0",
+    "linha": "324",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28607",
+    "latitude": "-22,89255",
+    "longitude": "-43,21443",
+    "datahora": "1745363578000",
+    "velocidade": "38",
+    "linha": "329",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28629",
+    "latitude": "-22,90335",
+    "longitude": "-43,18603",
+    "datahora": "1745363578000",
+    "velocidade": "9",
+    "linha": "326",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28589",
+    "latitude": "-22,81908",
+    "longitude": "-43,18348",
+    "datahora": "1745363579000",
+    "velocidade": "12",
+    "linha": "324",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B28570",
+    "latitude": "-22,90673",
+    "longitude": "-43,21003",
+    "datahora": "1745363579000",
+    "velocidade": "43",
+    "linha": "325",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "B51566",
+    "latitude": "-22,87761",
+    "longitude": "-43,36812",
+    "datahora": "1745362216000",
+    "velocidade": "0",
+    "linha": "GARAGEM",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363599000"
+  },
+  {
+    "ordem": "B28597",
+    "latitude": "-22,82801",
+    "longitude": "-43,23496",
+    "datahora": "1745363579000",
+    "velocidade": "57",
+    "linha": "326",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363602000"
+  },
+  {
+    "ordem": "A50070",
+    "latitude": "-22,92369",
+    "longitude": "-43,36915",
+    "datahora": "1745363569000",
+    "velocidade": "20",
+    "linha": "SP810",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50097",
+    "latitude": "-22,94181",
+    "longitude": "-43,25273",
+    "datahora": "1745363570000",
+    "velocidade": "15",
+    "linha": "220",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50131",
+    "latitude": "-22,9801",
+    "longitude": "-43,29347",
+    "datahora": "1745363568000",
+    "velocidade": "25",
+    "linha": "302",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50216",
+    "latitude": "-22,92061",
+    "longitude": "-43,22247",
+    "datahora": "1745363569000",
+    "velocidade": "0",
+    "linha": "229",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50080",
+    "latitude": "-22,92296",
+    "longitude": "-43,26439",
+    "datahora": "1745363570000",
+    "velocidade": "0",
+    "linha": "608",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50068",
+    "latitude": "-22,9377",
+    "longitude": "-43,24632",
+    "datahora": "1745363569000",
+    "velocidade": "16",
+    "linha": "302",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50137",
+    "latitude": "-22,9604",
+    "longitude": "-43,39569",
+    "datahora": "1745363566000",
+    "velocidade": "1",
+    "linha": "645",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50060",
+    "latitude": "-22,96075",
+    "longitude": "-43,39571",
+    "datahora": "1745363571000",
+    "velocidade": "0",
+    "linha": "810",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50062",
+    "latitude": "-22,98792",
+    "longitude": "-43,48153",
+    "datahora": "1745363570000",
+    "velocidade": "21",
+    "linha": "SP810",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50078",
+    "latitude": "-22,9878",
+    "longitude": "-43,48305",
+    "datahora": "1745363572000",
+    "velocidade": "40",
+    "linha": "810",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50056",
+    "latitude": "-22,92868",
+    "longitude": "-43,25424",
+    "datahora": "1745363570000",
+    "velocidade": "0",
+    "linha": "435",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50140",
+    "latitude": "-22,98524",
+    "longitude": "-43,20701",
+    "datahora": "1745363571000",
+    "velocidade": "0",
+    "linha": "435",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50085",
+    "latitude": "-22,92379",
+    "longitude": "-43,37464",
+    "datahora": "1745363572000",
+    "velocidade": "0",
+    "linha": "SP810",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50166",
+    "latitude": "-22,90809",
+    "longitude": "-43,19651",
+    "datahora": "1745363571000",
+    "velocidade": "52",
+    "linha": "220",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50186",
+    "latitude": "-22,92881",
+    "longitude": "-43,25432",
+    "datahora": "1745363573000",
+    "velocidade": "0",
+    "linha": "435",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50083",
+    "latitude": "-22,92961",
+    "longitude": "-43,2536",
+    "datahora": "1745363572000",
+    "velocidade": "0",
+    "linha": "448",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50070",
+    "latitude": "-22,92353",
+    "longitude": "-43,3691",
+    "datahora": "1745363573000",
+    "velocidade": "16",
+    "linha": "SP810",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50076",
+    "latitude": "-22,98715",
+    "longitude": "-43,47814",
+    "datahora": "1745363573000",
+    "velocidade": "33",
+    "linha": "SP810",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50014",
+    "latitude": "-22,98935",
+    "longitude": "-43,43636",
+    "datahora": "1745363573000",
+    "velocidade": "48",
+    "linha": "SN810",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50052",
+    "latitude": "-22,92086",
+    "longitude": "-43,22541",
+    "datahora": "1745363573000",
+    "velocidade": "0",
+    "linha": "220",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50023",
+    "latitude": "-22,92931",
+    "longitude": "-43,25367",
+    "datahora": "1745363573000",
+    "velocidade": "0",
+    "linha": "603",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50081",
+    "latitude": "-22,98274",
+    "longitude": "-43,46833",
+    "datahora": "1745363573000",
+    "velocidade": "0",
+    "linha": "810",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50012",
+    "latitude": "-23,00181",
+    "longitude": "-43,36554",
+    "datahora": "1745363571000",
+    "velocidade": "0",
+    "linha": "SP805",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50153",
+    "latitude": "-22,90954",
+    "longitude": "-43,20587",
+    "datahora": "1745363574000",
+    "velocidade": "0",
+    "linha": "165",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50070",
+    "latitude": "-22,92345",
+    "longitude": "-43,36915",
+    "datahora": "1745363575000",
+    "velocidade": "22",
+    "linha": "SP810",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50100",
+    "latitude": "-22,96016",
+    "longitude": "-43,26873",
+    "datahora": "1745363575000",
+    "velocidade": "41",
+    "linha": "301",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50019",
+    "latitude": "-22,96004",
+    "longitude": "-43,39531",
+    "datahora": "1745363577000",
+    "velocidade": "0",
+    "linha": "645",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50131",
+    "latitude": "-22,9802",
+    "longitude": "-43,29388",
+    "datahora": "1745363575000",
+    "velocidade": "20",
+    "linha": "302",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50009",
+    "latitude": "-22,89969",
+    "longitude": "-43,21125",
+    "datahora": "1745363577000",
+    "velocidade": "0",
+    "linha": "301",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "D53616",
+    "latitude": "-22,88416",
+    "longitude": "-43,49482",
+    "datahora": "1745363274000",
+    "velocidade": "0",
+    "linha": "3",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363610000"
+  },
+  {
+    "ordem": "A72065",
+    "latitude": "-22,9146",
+    "longitude": "-43,18462",
+    "datahora": "1745363559000",
+    "velocidade": "7",
+    "linha": "410",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72172",
+    "latitude": "-22,99966",
+    "longitude": "-43,3551",
+    "datahora": "1745363559000",
+    "velocidade": "24",
+    "linha": "691",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72056",
+    "latitude": "-22,8893",
+    "longitude": "-43,29259",
+    "datahora": "1745363570000",
+    "velocidade": "0",
+    "linha": "693",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72010",
+    "latitude": "-22,90704",
+    "longitude": "-43,19792",
+    "datahora": "1745363565000",
+    "velocidade": "1",
+    "linha": "109",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72055",
+    "latitude": "-22,92286",
+    "longitude": "-43,24926",
+    "datahora": "1745363568000",
+    "velocidade": "0",
+    "linha": "422",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72075",
+    "latitude": "-22,91607",
+    "longitude": "-43,22856",
+    "datahora": "1745363566000",
+    "velocidade": "38",
+    "linha": "410",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72036",
+    "latitude": "-22,92005",
+    "longitude": "-43,18473",
+    "datahora": "1745363567000",
+    "velocidade": "31",
+    "linha": "007",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72030",
+    "latitude": "-22,91917",
+    "longitude": "-43,21963",
+    "datahora": "1745363565000",
+    "velocidade": "20",
+    "linha": "410",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72092",
+    "latitude": "-22,91617",
+    "longitude": "-43,19446",
+    "datahora": "1745363567000",
+    "velocidade": "42",
+    "linha": "410",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72067",
+    "latitude": "-22,93096",
+    "longitude": "-43,17784",
+    "datahora": "1745363568000",
+    "velocidade": "12",
+    "linha": "507",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72176",
+    "latitude": "-22,97044",
+    "longitude": "-43,22285",
+    "datahora": "1745363568000",
+    "velocidade": "57",
+    "linha": "109",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72030",
+    "latitude": "-22,91923",
+    "longitude": "-43,21982",
+    "datahora": "1745363568000",
+    "velocidade": "24",
+    "linha": "410",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72036",
+    "latitude": "-22,9199",
+    "longitude": "-43,18455",
+    "datahora": "1745363570000",
+    "velocidade": "25",
+    "linha": "007",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "A72013",
+    "latitude": "-22,92233",
+    "longitude": "-43,23019",
+    "datahora": "1745363573000",
+    "velocidade": "3",
+    "linha": "410",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363596000"
+  },
+  {
+    "ordem": "B10107",
+    "latitude": "-22,81558",
+    "longitude": "-43,1874",
+    "datahora": "1745363312000",
+    "velocidade": "0",
+    "linha": "GARAGEM",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363598000"
+  },
+  {
+    "ordem": "B71060",
+    "latitude": "-22,88909",
+    "longitude": "-43,29266",
+    "datahora": "1745362680000",
+    "velocidade": "0",
+    "linha": "247",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363601000"
+  },
+  {
+    "ordem": "C50026",
+    "latitude": "-22,90289",
+    "longitude": "-43,20972",
+    "datahora": "1745363570000",
+    "velocidade": "66",
+    "linha": "302",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50167",
+    "latitude": "-22,9463",
+    "longitude": "-43,25694",
+    "datahora": "1745363577000",
+    "velocidade": "0",
+    "linha": "220",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A50002",
+    "latitude": "-22,92507",
+    "longitude": "-43,31203",
+    "datahora": "1745363577000",
+    "velocidade": "27",
+    "linha": "302",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50207",
+    "latitude": "-22,92481",
+    "longitude": "-43,20921",
+    "datahora": "1745363579000",
+    "velocidade": "0",
+    "linha": "607",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "C50136",
+    "latitude": "-22,92905",
+    "longitude": "-43,25405",
+    "datahora": "1745363577000",
+    "velocidade": "0",
+    "linha": "MANUT",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363604000"
+  },
+  {
+    "ordem": "A48028",
+    "latitude": "-22,94629",
+    "longitude": "-43,25622",
+    "datahora": "1745363430000",
+    "velocidade": "0",
+    "linha": "415",
+    "datahoraenvio": "1745363580000",
+    "datahoraservidor": "1745363610000"
+  }
+]
