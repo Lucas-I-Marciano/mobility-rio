@@ -44,5 +44,7 @@ data = {
     ]
 }
 
-response = requests.post(url, headers=headers, json=data, verify=False)
-print(response.json())
+url_get = f"https://api.traveltimeapp.com/v4/routes?type=public_transport&origin_lat=-23.5351223&origin_lng=-46.635393&destination_lat=-23.6046125&destination_lng=-46.6936505&departure_time=2025-04-12T01:00:00Z&app_id={os.getenv("Application-Id")}&api_key={os.getenv("Api-Key")}"
+# response = requests.post(url, headers=headers, json=data, verify=False)
+response_get = requests.get(url_get, headers=headers, verify=False)
+print(response_get.json())
