@@ -20,7 +20,7 @@ async def root():
         stored_data = redis_client.get('latest_bus_data')
         if stored_data:
             # Converte a string JSON de volta para um objeto Python
-            return json.loads(stored_data)
+            return {"message": "Success! Showing first 30 values", "data": json.loads(stored_data)[:30]}
         else:
             # Se não houver dados no cache, pode retornar vazio ou um erro 404
             raise HTTPException(status_code=404, detail="Dados de ônibus ainda não disponíveis")
