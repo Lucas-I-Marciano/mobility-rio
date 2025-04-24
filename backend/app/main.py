@@ -1,19 +1,12 @@
 from fastapi import FastAPI
-from dotenv import load_dotenv
-from app.api.routes import bus
+from fastapi import HTTPException
 import redis 
 import json
-from fastapi import HTTPException
 
-redis_client = redis.Redis(
-    host="redis",
-    port=6379,
-    db=0,
-    decode_responses=True,
-    socket_connect_timeout=5 # Timeout para conectar
-    )
 
-load_dotenv()  # take environment variables
+from app.api.routes import bus
+from app.core.redis import redis_client
+
 
 app = FastAPI()
 
