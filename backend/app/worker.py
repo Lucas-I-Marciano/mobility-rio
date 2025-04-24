@@ -1,20 +1,20 @@
+# Em backend/app/worker.py
+
 import os
-from celery import Celery
+# from celery.schedules import crontab # Não precisa mais importar crontab aqui
 from dotenv import load_dotenv
-import time
 
-load_dotenv()  # take environment variables
+from app.celery_config import celery_app
 
-redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-print(f"Redis URL: {redis_url}")  # Verifique se a URL do Redis está correta
-if redis_url is None:
-    raise ValueError("A variável de ambiente REDIS_URL não foi encontrada.")
+# Manter a importação pode ajudar a garantir o registro da task,
+# embora o 'include' em celery_config também deva fazer isso.
+from app.tasks import bus
+# Ou: import app.tasks.bus
 
-# Configurar o Celery com a URL do Redis
-celery_app  = Celery("app", broker=redis_url)
+load_dotenv()
+
+# Configurações específicas do worker (se houver)
 celery_app.conf.worker_pool = 'solo'
 
-@celery_app.task
-def add(x, y):
-    print(x+y)
-    return x + y
+# ---> REMOVA O BEAT SCHEDULE DESTE ARQUIVO <---
+# A configuração do beat_schedule foi movida para celery_config.py
