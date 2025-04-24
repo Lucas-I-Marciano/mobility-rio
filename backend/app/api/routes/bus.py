@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Path
 from typing import Annotated
 import math
 import json
@@ -57,7 +57,7 @@ def get_distinct_lines():
                  raise HTTPException(status_code=500, detail="Formato de dados armazenados inválido (não é uma lista)")
 
             lines = map(lambda bus_info: bus_info['linha'] if bus_info['linha'] !="FORA DE OP" else "", full_bus_list)
-            return list(data)
+            return list(lines)
         else:
             # Se não houver dados no cache, pode retornar vazio ou um erro 404
             raise HTTPException(status_code=404, detail="Dados de ônibus ainda não disponíveis")
