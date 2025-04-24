@@ -1,54 +1,38 @@
-from app.celery_config import celery_app
 import requests
 import redis
 import os
 import json
 from datetime import datetime, timedelta # Import datetime
 
-redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-try:
-    redis_client = redis.Redis(
-        host="redis",
-        port=6379,
-        db=0,
-        decode_responses=True,
-        socket_connect_timeout=5 # Timeout para conectar
-    )
-    redis_client.ping()
-    print("tasks/bus.py: Conectado ao Redis") # Adiciona nome do arquivo ao log
-except redis.exceptions.ConnectionError as e:
-    print(f"tasks/bus.py: ERRO ao conectar ao Redis: {e}")
+from app.core.celery_config import celery_app
+from app.core.redis import redis_client
 
 @celery_app.task(name='tasks.fetch_bus_data')
 def get_bus():
     API_URL = "https://dados.mobilidade.rio/gps/sppo"
     now = datetime.now()
-    # Pega um intervalo de 2 minutos para aumentar a chance de pegar dados
-    # A API pode ter um pequeno delay
-    some_minutes_ago = now - timedelta(minutes=2)
+    some_minutes_ago = now - timedelta(minutes=1)
 
-    data_final_str = now.strftime('%Y-%m-%d %H:%M:%S')
-    data_inicial_str = some_minutes_ago.strftime('%Y-%m-%d %H:%M:%S')
+    data_final_str = now.strftime('%Y-%m-%d+%H:%M:%S')
+    data_inicial_str = some_minutes_ago.strftime('%Y-%m-%d+%H:%M:%S')
 
     params = {
         'dataInicial': data_inicial_str,
-        'dataFinal': data_final_str
+        'dataFinal': data_inicial_str
     }
-    print(f"Task get_bus: Buscando dados entre {data_inicial_str} e {data_final_str}")
+    print(f"Task get_bus: Buscando dados entre {data_inicial_str} e {data_inicial_str}")
 
     try:
-        # Faz a requisição à API com timeout
-        response_get = requests.get("https://dados.mobilidade.rio/gps/sppo?dataInicial=2025-04-22+20:13:00&dataFinal=2025-04-22+20:13:00", timeout=45)
+        response_get = requests.get(API_URL, params=params, timeout=45)
         # Levanta uma exceção para respostas HTTP ruins (4xx ou 5xx)
         response_get.raise_for_status()
 
         # Tenta decodificar a resposta JSON
         try:
             data = response_get.json()
-            print("DATA: ", data)
         except json.JSONDecodeError as e:
             print(f"Task get_bus: ERRO ao decodificar JSON da API. Status Code: {response_get.status_code}, Resposta: {response_get.text[:200]}... Erro: {e}")
-            return None # Falha ao decodificar, não há o que salvar
+            return None 
 
         # Verifica se a resposta é uma lista (como esperado agora)
         if not isinstance(data, list):
@@ -64,7 +48,6 @@ def get_bus():
         # Verifica se o cliente Redis está disponível antes de usar
         if not redis_client:
                 print("Task get_bus: ERRO - Cliente Redis não conectado. Não foi possível salvar.")
-                # Retorna None ou talvez a contagem, mas sem salvar? Decidi retornar None.
                 return None
 
         # Tenta salvar a lista de dados (como string JSON) no Redis
