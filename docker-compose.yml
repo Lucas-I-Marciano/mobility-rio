@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   backend:
     build: 
@@ -33,7 +31,7 @@ services:
   celery:
     build: ./backend
     container_name: celery
-    command: celery -A app.tasks.update_bus_data worker --loglevel=info
+    command: celery -A app.worker worker --loglevel=info
     volumes:
       - ./backend:/app
     depends_on:
