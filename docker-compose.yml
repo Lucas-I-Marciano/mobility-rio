@@ -31,7 +31,7 @@ services:
   celery:
     build: ./backend
     container_name: celery
-    command: celery -A app.celery_config worker -B --loglevel=DEBUG
+    command: celery -A app.core.celery_config worker -B --loglevel=info
     volumes:
       - ./backend:/app
     depends_on:
