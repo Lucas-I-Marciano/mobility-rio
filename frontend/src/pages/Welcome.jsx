@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+
 import logo from "../assets/logo_pref_rio.png"
 
 export const Welcome = () => {
+    let navigate = useNavigate()
     const [location, setLocation] = useState(null);
     const [error, setError] = useState(null)
     const locationAccess = async () => {
@@ -59,7 +62,7 @@ export const Welcome = () => {
                 <p>Precisamos acessar a sua localidade para conseguir te ajudar com os ônibus mais próximos</p>
                 <button onClick={() => { locationAccess() }} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-900 dark:hover:bg-blue-300 dark:hover:text-black focus:outline-none dark:focus:ring-blue-800">Conceder acesso a Localização!</button>
                 {location ?
-                    <button className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Navegue para nosso Dashboard</button>
+                    <button className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" onClick={() => { navigate("/confirm") }}>Navegue para nosso Dashboard</button>
                     : null}
                 {error ? <p>{error}</p> : null}
             </div>
