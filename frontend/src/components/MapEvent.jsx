@@ -21,7 +21,7 @@ function LocationMarker() {
     )
 }
 
-export function Map() {
+export function MapEvent() {
     return (
         <>
             <MapContainer className='h-125 w-100' center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
