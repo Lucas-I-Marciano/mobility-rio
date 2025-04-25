@@ -8,27 +8,9 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import { useUserLocation } from "../context/userLocation";
+import { LocateUser } from "./LocateUser"
 
-function LocateUser() {
-  const { userLocation, setUserLocation } = useUserLocation();
-  const map = useMapEvents({
-    click() {
-      map.locate();
-    },
-    locationfound(e) {
-      setUserLocation(e.latlng);
-      map.flyTo(e.latlng, 16);
-    },
-  });
-
-  return userLocation === null ? null : (
-    <Marker position={userLocation}>
-      <Popup>You are here</Popup>
-    </Marker>
-  );
-}
-
-export function MapEvent() {
+export function MapLocate() {
   return (
     <>
       <MapContainer
@@ -41,11 +23,6 @@ export function MapEvent() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={[51.505, -0.09]}>
-          <Popup>
-            A pretty CSS3 popup. <br /> Easily customizable.
-          </Popup>
-        </Marker>
         <LocateUser />
       </MapContainer>
     </>
