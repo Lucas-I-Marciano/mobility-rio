@@ -1,9 +1,9 @@
-import { MapEvent } from "./components/MapEvent";
+import { ConfirmLocation } from "./pages/ConfirmLocation";
 
 function App() {
   return (
     <>
-      <MapEvent />
+      <ConfirmLocation />
     </>
   );
 }
