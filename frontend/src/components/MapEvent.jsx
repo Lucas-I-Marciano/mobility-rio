@@ -7,21 +7,22 @@ import {
   Popup,
   useMapEvents,
 } from "react-leaflet";
+import { useUserLocation } from "../context/userLocation";
 
-function LocationMarker() {
-  const [position, setPosition] = useState(null);
+function LocateUser() {
+  const { userLocation, setUserLocation } = useUserLocation();
   const map = useMapEvents({
     click() {
       map.locate();
     },
     locationfound(e) {
-      setPosition(e.latlng);
-      map.flyTo(e.latlng, map.getZoom());
+      setUserLocation(e.latlng);
+      map.flyTo(e.latlng, 16);
     },
   });
 
-  return position === null ? null : (
-    <Marker position={position}>
+  return userLocation === null ? null : (
+    <Marker position={userLocation}>
       <Popup>You are here</Popup>
     </Marker>
   );
@@ -32,8 +33,8 @@ export function MapEvent() {
     <>
       <MapContainer
         className="h-125 w-100"
-        center={[51.505, -0.09]}
-        zoom={13}
+        center={[-22.937822, -43.253794]}
+        zoom={11}
         scrollWheelZoom={false}
       >
         <TileLayer
@@ -45,7 +46,7 @@ export function MapEvent() {
             A pretty CSS3 popup. <br /> Easily customizable.
           </Popup>
         </Marker>
-        <LocationMarker />
+        <LocateUser />
       </MapContainer>
     </>
   );
