@@ -2,17 +2,7 @@ import { useState } from "react";
 import { MapBusStop } from "../components/MapBusStop";
 import { useLocation } from "../context/location";
 
-const MyForm = () => {
-  return (
-    <div>
-      <form action="">
-        <label htmlFor="">
-          Selecione a Linha <input className="bg-gray-200" type="text" />
-        </label>
-      </form>
-    </div>
-  );
-};
+import BusLineSelector from "../components/BusLineSelector";
 
 export const ChoseBusStop = () => {
   const { userLocation, busStopLocation } = useLocation();
@@ -44,7 +34,7 @@ export const ChoseBusStop = () => {
             </button>
           )}
         </div>
-        {showForm ? <MyForm /> : null}
+        {showForm ? <BusLineSelector /> : null}
       </div>
     </>
   );
