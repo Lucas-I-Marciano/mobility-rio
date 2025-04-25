@@ -1,12 +1,11 @@
-import { MapEvent } from "./components/MapEvent"
+import { MapEvent } from "./components/MapEvent";
 
 function App() {
-
   return (
     <>
       <MapEvent />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
