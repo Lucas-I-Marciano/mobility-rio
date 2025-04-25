@@ -27,8 +27,6 @@ export const Welcome = () => {
 
     }
 
-    console.log(location);
-
     return (
         <>
             <div className="flex flex-col gap-5 items-center">

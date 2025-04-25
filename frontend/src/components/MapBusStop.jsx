@@ -12,7 +12,6 @@ import { AddMarker } from "./AddMarker"
 
 export function MapBusStop() {
     const { userLocation, setUserLocation } = useLocation();
-    console.log(userLocation);
 
     return (
         <>
