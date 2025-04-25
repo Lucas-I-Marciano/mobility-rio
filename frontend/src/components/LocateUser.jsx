@@ -1,8 +1,8 @@
 import { Marker, Popup, useMapEvents } from "react-leaflet";
-import { useUserLocation } from "../context/userLocation";
+import { useLocation } from "../context/location";
 
 export const LocateUser = () => {
-    const { userLocation, setUserLocation } = useUserLocation();
+    const { userLocation, setUserLocation } = useLocation();
     const map = useMapEvents({
         click() {
             map.locate();

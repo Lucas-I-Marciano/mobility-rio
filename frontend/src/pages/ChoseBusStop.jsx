@@ -1,9 +1,9 @@
 import { MapBusStop } from "../components/MapBusStop";
-import { useUserLocation } from "../context/userLocation";
+import { useLocation } from "../context/location";
 import { LocateUser } from "../components/LocateUser"
 
 export const ChoseBusStop = () => {
-    const { userLocation, setUserLocation } = useUserLocation();
+    const { userLocation, setUserLocation } = useLocation();
 
 
     return (

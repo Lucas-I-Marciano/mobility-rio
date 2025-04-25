@@ -7,7 +7,6 @@ import {
   Popup,
   useMapEvents,
 } from "react-leaflet";
-import { useUserLocation } from "../context/userLocation";
 import { LocateUser } from "./LocateUser"
 
 export function MapLocate() {

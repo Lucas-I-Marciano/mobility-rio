@@ -14,7 +14,7 @@ export const AddMarker = () => {
         markerPosition === null ?
             null :
             < Marker position={markerPosition} >
-                <Popup>You are here</Popup>
+                <Popup>Bus Stop</Popup>
             </Marker >
     )
 }

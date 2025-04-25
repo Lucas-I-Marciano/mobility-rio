@@ -7,11 +7,11 @@ import {
     Popup,
     useMapEvents,
 } from "react-leaflet";
-import { useUserLocation } from "../context/userLocation";
+import { useLocation } from "../context/location";
 import { AddMarker } from "./AddMarker"
 
 export function MapBusStop() {
-    const { userLocation, setUserLocation } = useUserLocation();
+    const { userLocation, setUserLocation } = useLocation();
     console.log(userLocation);
 
     return (
@@ -27,7 +27,7 @@ export function MapBusStop() {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 <Marker position={userLocation}>
-                    <Popup>You are here!</Popup>
+                    <Popup>Você está aqui</Popup>
                 </Marker>
                 <AddMarker />
             </MapContainer>
