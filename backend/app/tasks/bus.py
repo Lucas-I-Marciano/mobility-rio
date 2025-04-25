@@ -3,6 +3,7 @@ import redis
 import os
 import json
 from datetime import datetime, timedelta # Import datetime
+from zoneinfo import ZoneInfo
 
 from app.core.celery_config import celery_app
 from app.core.redis import redis_client
@@ -10,17 +11,20 @@ from app.core.redis import redis_client
 @celery_app.task(name='tasks.fetch_bus_data')
 def get_bus():
     API_URL = "https://dados.mobilidade.rio/gps/sppo"
-    now = datetime.now()
+    
+    sao_paulo_tz = ZoneInfo("America/Sao_Paulo")
+    now = datetime.now(sao_paulo_tz)
     some_minutes_ago = now - timedelta(minutes=1)
+
 
     data_final_str = now.strftime('%Y-%m-%d+%H:%M:%S')
     data_inicial_str = some_minutes_ago.strftime('%Y-%m-%d+%H:%M:%S')
 
     params = {
-        'dataInicial': data_inicial_str,
-        'dataFinal': data_inicial_str
+        'dataInicial': data_final_str,
+        'dataFinal': data_final_str
     }
-    print(f"Task get_bus: Buscando dados entre {data_inicial_str} e {data_inicial_str}")
+    print(f"Task get_bus: Buscando dados entre {data_final_str} e {data_final_str}")
 
     try:
         response_get = requests.get(API_URL, params=params, timeout=45)
