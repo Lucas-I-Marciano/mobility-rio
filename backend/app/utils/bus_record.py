@@ -34,3 +34,52 @@ def process_vehicle_data(data: dict) -> dict:
 
     # Converte defaultdict de volta para dict para a saída final (opcional, mas comum)
     return dict(grouped_data)
+
+def analyze_vehicle_movement(grouped_sorted_data: dict) -> list:
+    """
+    Analisa se os veículos estão, de forma geral, se aproximando ou se afastando.
+
+    Compara a primeira e a última medição de distância registrada para cada veículo.
+
+    Args:
+        grouped_sorted_data: Dicionário retornado por process_vehicle_data.
+                             As chaves são 'ordem' e os valores são listas
+                             de dicionários {'datahora': 'distance_km'} ordenados
+                             cronologicamente.
+
+    Returns:
+        Uma lista de dicionários no formato [{"id_veiculo": eh_aproximando_boolean}, ...].
+        True indica aproximação (última distância < primeira distância).
+        False indica afastamento ou manutenção da distância.
+    """
+    movement_analysis_result = []
+    for vehicle_id, timestamp_list in grouped_sorted_data.items():
+
+        # Precisa de pelo menos um ponto para análise (comparar primeiro e último)
+        # Se tiver só um, a distância será igual, resultando em False (não aproximando)
+        if not timestamp_list:
+            continue # Pula veículos sem dados
+
+        try:
+          to_assess = []
+          for i in range(len(timestamp_list)) :
+            if i == 0:
+                continue
+            actual_index = i * -1
+            last_index = actual_index - 1
+            
+            actual_data_point = timestamp_list[actual_index]
+            last_data_point = timestamp_list[last_index]
+
+            actual_distance = next(iter(actual_data_point.values()))
+            last_distance_test = next(iter(last_data_point.values()))
+
+            to_assess.append(actual_distance - last_distance_test)
+          movement_analysis_result.append({vehicle_id: sum(to_assess) < 0})
+
+        except (StopIteration, IndexError) as e:
+            # Adiciona um tratamento básico caso haja algo inesperado com os dados internos
+            print(f"Erro ao processar dados para o veículo {vehicle_id}: {e}. Pulando.")
+            continue
+
+    return movement_analysis_result
