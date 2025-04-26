@@ -1,4 +1,7 @@
 from collections import defaultdict
+import logging
+
+logger = logging.getLogger(__name__)
 
 def process_vehicle_data(data: dict) -> dict:
     """
@@ -83,3 +86,35 @@ def analyze_vehicle_movement(grouped_sorted_data: dict) -> list:
             continue
 
     return movement_analysis_result
+
+def analyze_vehicle_movement_distance(results_with_distance):
+    processed_data = process_vehicle_data({"results" : results_with_distance})
+    vehicle_movement = analyze_vehicle_movement(processed_data)
+    logger.info(f"Calculated distances for {len(results_with_distance)} buses.")
+    # Using logger.debug might be better for potentially large output
+    logger.debug(f"Results with distance: {results_with_distance}")
+
+    # Itera sobre cada dicionário na lista 'results' do primeiro objeto
+    for item in vehicle_movement:
+        # Pega a única chave presente no dicionário atual (ex: "A29041")
+        # Assumindo que cada dicionário em 'results' sempre terá apenas uma chave
+        chave = list(item.keys())[0]
+
+        # Verifica se a chave existe no segundo objeto e se a lista correspondente não está vazia
+        if chave in processed_data and processed_data[chave]:
+            # Pega a lista de dicionários correspondente à chave no segundo objeto
+            lista_distancias = processed_data[chave]
+
+            # Pega o último dicionário da lista
+            ultimo_registro = lista_distancias[-1]
+
+            # Pega o valor do último dicionário (a distância)
+            # Assumindo que cada dicionário na lista de distâncias também tem apenas uma chave
+            distancia = list(ultimo_registro.values())[0]
+
+            # Adiciona a chave "distance" com o valor encontrado ao dicionário original em dados1
+            item['distance'] = distancia
+        else:
+            # Opcional: Define um valor padrão caso a chave não exista em processed_data ou a lista esteja vazia
+            item['distance'] = None # ou 0, ou outra indicação de que não foi encontrado
+    return vehicle_movement
