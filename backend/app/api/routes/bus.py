@@ -7,7 +7,7 @@ import logging
 
 from app.core.redis import redis_client
 from app.services.redis import get_latest_bus_data
-from app.services.bus_filtering import filter_and_paginate_buses
+from app.services.bus_filtering import filter_and_paginate_buses, add_distance_to_buses
 from app.core.exceptions import (
     RedisServiceUnavailableError,
     DataNotFoundError,
@@ -15,6 +15,7 @@ from app.core.exceptions import (
     RedisOperationError,
     ServiceError 
 )
+from app.utils.bus_record import process_vehicle_data, analyze_vehicle_movement, analyze_vehicle_movement_distance
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/bus")
@@ -110,3 +111,64 @@ def retrieve_line(id: Annotated[str, Path()]):
         raise HTTPException(status_code=500, detail="Erro interno ao acessar dados")
     except json.JSONDecodeError:
          raise HTTPException(status_code=500, detail="Erro ao decodificar dados armazenados")
+    
+@router.post("/distance")
+def get_bus_distance(
+    target_lines: Annotated[List[str], Body(description="Filtrar pela linha do ônibus")],
+    dest_lat_float: Annotated[float, Query(description="Latitude do ponto de ônibus")],
+    dest_lng_float: Annotated[float, Query(description="Longitude do ponto de ônibus")]
+    ):
+    """
+    Calculate distance to a destination, and return the results.
+    """
+    logger.info(f"Initiating distance calculation test for lines {target_lines} to ({dest_lat_float}, {dest_lng_float})")
+
+    try:
+        # 1. Get all bus data
+        full_bus_list = get_latest_bus_data()
+        logger.info(f"Fetched {len(full_bus_list)} total buses from Redis.")
+
+        # 2. Filter for the target line (get all items)
+        # Note: Passing the line as a list as expected by the modified function
+        # Using a large limit to bypass pagination for the test
+        pagination_result = filter_and_paginate_buses(
+            full_bus_list=full_bus_list,
+            page=1,
+            limit=len(full_bus_list) + 1, # Ensure limit > total items
+            lines=target_lines
+        )
+        buses_for_line = pagination_result.get("items", [])
+        logger.info(f"Found {len(buses_for_line)} buses for line {target_lines}.")
+
+        if not buses_for_line:
+             return {"message": f"No buses found for line {target_lines}", "results": []}
+
+        # 3. Calculate distances for the filtered buses
+        # Assuming the distance function is named add_distance_to_buses
+        results_with_distance = add_distance_to_buses(
+            bus_list=buses_for_line,
+            dest_lat=dest_lat_float,
+            dest_lng=dest_lng_float
+        )
+
+        processed_data = process_vehicle_data({"results" : results_with_distance})
+        vehicle_movement = analyze_vehicle_movement(processed_data)
+        logger.info(f"Calculated distances for {len(results_with_distance)} buses.")
+        # Using logger.debug might be better for potentially large output
+        logger.debug(f"Results with distance: {results_with_distance}")
+
+        to_return = analyze_vehicle_movement_distance(results_with_distance)
+        return {"results": to_return}
+
+    # --- Handle potential errors from services ---
+    except RedisServiceUnavailableError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except DataNotFoundError as e:
+         # If the base key isn't found, we can't test
+         raise HTTPException(status_code=404, detail=str(e))
+    except (InvalidDataFormatError, RedisOperationError, ServiceError) as e:
+         logger.error(f"Service error during test: {e}")
+         raise HTTPException(status_code=500, detail="Erro interno no serviço durante o teste.")
+    except Exception as e:
+        logger.exception(f"Unexpected error in /test/distance_calc route: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno inesperado no servidor de teste.")
