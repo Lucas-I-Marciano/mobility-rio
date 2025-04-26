@@ -3,6 +3,7 @@ import { fetchBusLines } from "../services/bus";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { formatISO } from "date-fns";
 
 const schema = yup
   .object({
@@ -11,6 +12,7 @@ const schema = yup
       .string()
       .email("E-mail precisa ser válido")
       .required("Digite seu E-mail"),
+    datetime: yup.string().required("Selecione uma data"),
   })
   .required();
 
@@ -29,7 +31,11 @@ export const BusLineSelector = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: yupResolver(schema) });
-  const onSubmit = (data) => console.log(data);
+  const onSubmit = (data) => {
+    const toReturn = data;
+    toReturn["datetime"] = formatISO(toReturn["datetime"]);
+    console.log(toReturn);
+  };
 
   useEffect(() => {
     const getLines = async () => {
@@ -87,6 +93,13 @@ export const BusLineSelector = () => {
       <label htmlFor="">E-mail</label>
       <input className={inputClass} type="text" {...register("email")} />
       <p className={errorClass}>{errors.email?.message}</p>
+      <label htmlFor="">Horário de Saída</label>
+      <input
+        className={inputClass}
+        type="datetime-local"
+        {...register("datetime")}
+      />
+      <p className={errorClass}>{errors.datetime?.message}</p>
       {lines.length === 0 && !loading && <div>No bus lines available.</div>}
       <input
         className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
