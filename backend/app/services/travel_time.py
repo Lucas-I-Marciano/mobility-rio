@@ -1,50 +1,94 @@
 import datetime
 import os
 import httpx # Ou import requests
+import logging
+from zoneinfo import ZoneInfo
+from app.schemas.travel_mode import TravelMode # Assuming Enum is here
 
-# ... (dentro da sua função utilitária no backend) ...
+logger = logging.getLogger(__name__)
 
-async def get_travel_time_estimate(origin_lat, origin_lng, dest_lat, dest_lng):
-    """Calcula o tempo estimado de viagem usando a Travel Time API."""
-
-    APP_ID = os.getenv("TRAVELTIME_APP_ID") # Use nomes claros no .env
+async def get_travel_time_estimate(
+    origin_lat: float,
+    origin_lng: float,
+    dest_lat: float,
+    dest_lng: float,
+    modal: TravelMode # Use the Enum type
+):
+    """
+    Calculates the estimated travel time using the Travel Time API via POST.
+    Returns a dictionary with total_travel_time_seconds and mode breakdown, or None.
+    """
+    APP_ID = os.getenv("TRAVELTIME_APP_ID")
     API_KEY = os.getenv("TRAVELTIME_API_KEY")
 
     if not APP_ID or not API_KEY:
-        print("ERRO: Credenciais da Travel Time API não configuradas.")
-        return None # Ou levante uma exceção
+        logger.error("Credenciais da Travel Time API não configuradas.")
+        return None
 
-    # Hora atual em UTC, formato ISO 8601 exigido pela API
-    # Adiciona alguns segundos para garantir que não seja no passado exato
-    departure_time_dt = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=15)
-    departure_time_iso = departure_time_dt.isoformat(timespec='seconds').replace('+00:00', 'Z')
+    # --- Calculate Departure Time (UTC ISO) ---
+    try:
+        # Use current time + buffer, ensure it's UTC
+        departure_time_dt = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=30) # Increased buffer slightly
+        departure_time_iso = departure_time_dt.isoformat(timespec='seconds').replace('+00:00', 'Z')
+    except Exception as e:
+        logger.error(f"Erro ao calcular departure_time: {e}")
+        return None
+    # --- End Departure Time Calculation ---
 
+    # --- Define API Endpoint and Headers ---
+    # Using time-filter endpoint which often takes POST
     api_url = "https://api.traveltimeapp.com/v4/routes"
-
-    params = {
-        "type": "public_transport",
-        "origin_lat": str(origin_lat),
-        "origin_lng": str(origin_lng),
-        "destination_lat": str(dest_lat),
-        "destination_lng": str(dest_lng),
-        "departure_time": departure_time_iso,
-        # Adicione outros parâmetros se necessário, como transport_modes, etc.
-    }
-
     headers = {
         "X-Application-Id": APP_ID,
         "X-Api-Key": API_KEY,
+        "Content-Type": "application/json", # Important for POST
         "Accept": "application/json"
     }
+    # --- End Headers ---
+
+    # --- Construct Request Body ---
+    request_body = {
+        "locations": [
+            {
+                "id": "origin_point", # Assign arbitrary IDs
+                "coords": {"lat": origin_lat, "lng": origin_lng}
+            },
+            {
+                "id": "destination_point",
+                "coords": {"lat": dest_lat, "lng": dest_lng}
+            }
+        ],
+        "departure_searches": [
+            {
+                "id": "search_eta_from_origin_to_dest", # Arbitrary search ID
+                "departure_location_id": "origin_point", # Match origin ID
+                "arrival_location_ids": ["destination_point"], # Match destination ID(s)
+                "departure_time": departure_time_iso,
+                # Request only travel_time, maybe distance if needed?
+                "properties": ["travel_time", "route", "fares"],
+                "transportation": {
+                    # Use the enum value (which is a string)
+                    "type": modal
+                }
+                # Add range or other parameters if needed
+            }
+        ]
+    }
+    # --- End Request Body ---
+
+    logger.info(f"Enviando requisição POST para Travel Time API: {api_url}")
+    # logger.debug(f"Request Body: {request_body}") # Log body only if needed for debug
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(api_url, params=params, headers=headers, timeout=30)
-            response.raise_for_status() # Levanta erro para 4xx/5xx
+            # Use POST, passing headers and json body
+            response = await client.post(api_url, headers=headers, json=request_body, timeout=30)
+            response.raise_for_status() # Check for HTTP errors
 
             results = response.json()
+            logger.debug(f"Travel Time API Response Body: {results}") # Log the full response for debugging parsing
 
-            try:
+            try :
                 # Navigate safely to the 'parts' list
                 # results -> list -> [0] -> dict
                 first_result = results.get("results")
@@ -75,9 +119,7 @@ async def get_travel_time_estimate(origin_lat, origin_lng, dest_lat, dest_lng):
                 if not parts or not isinstance(parts, list):
                     print(f"WARN: 'parts' array missing or invalid in Travel Time route.")
                     return None
-
-                # Sum the travel_time from each part
-                total_travel_time_seconds = 0
+                
                 mode_times = {}
                 for part in parts:
                     if isinstance(part, dict):
@@ -89,9 +131,6 @@ async def get_travel_time_estimate(origin_lat, origin_lng, dest_lat, dest_lng):
                             # Convert to int just in case it's float
                             time_seconds = int(travel_time)
 
-                            # Add to total time
-                            total_travel_time_seconds += time_seconds
-
                             # Add to time for this specific mode
                             mode_times[mode] = mode_times.get(mode, 0) + time_seconds
                         else:
@@ -101,36 +140,74 @@ async def get_travel_time_estimate(origin_lat, origin_lng, dest_lat, dest_lng):
                                 print(f"WARN: Skipping part {part_id} due to missing or invalid mode: {mode}")
                             if not isinstance(travel_time, (int, float)) or travel_time < 0:
                                 print(f"WARN: Skipping part {part_id} due to missing or invalid travel_time: {travel_time}")
+            except:
+                pass
 
-                # Check if any travel time was actually found
-                if total_travel_time_seconds > 0 or len(parts) == 0:
-                    response_dict = {"total_travel_time_seconds": total_travel_time_seconds}
-                    # Add the time for each mode found
-                    response_dict.update(mode_times)
-                    return response_dict # Return the dictionary
-                else:
-                    # Handle cases where parts exist but have no travel time (unlikely but possible)
-                    print(f"WARN: No valid travel time found in route parts. Parts: {parts}")
-                    return None
+            # --- Parse the time-filter response ---
+            if not results.get("results") or not isinstance(results["results"], list) or len(results["results"]) == 0:
+                 logger.warning(f"WARN: 'results' array missing or empty in Travel Time response.")
+                 return None
 
-            except (KeyError, IndexError, TypeError) as e:
-                # Catch potential errors during parsing if checks above fail unexpectedly
-                print(f"ERRO: Error parsing Travel Time response structure: {e}. Response: {results}")
+            search_result = results["results"][0] # Get the first search result
+
+            # Find the destination location details within this result
+            # The API returns details for arrival locations in the 'locations' list
+            destination_details = None
+            for loc in search_result.get("locations", []):
+                 if loc.get("id") == "destination_point": # Find by the ID we assigned
+                     destination_details = loc
+                     break
+
+            if not destination_details:
+                logger.warning(f"WARN: Destination details ('destination_point') not found in Travel Time response locations.")
                 return None
 
+            # Extract properties (travel_time) for the destination
+            # Properties list might be empty if unreachable
+            properties = destination_details.get("properties")
+            if not properties or not isinstance(properties, list) or len(properties) == 0:
+                 # This might mean the destination is unreachable within constraints
+                 logger.info(f"INFO: Destino ('destination_point') inalcançável ou sem propriedades retornadas. Pode ser normal.")
+                 # Return a specific indicator for unreachable? Or just None/0? Let's return None.
+                 # Could return {'total_travel_time_seconds': -1} to indicate unreachable specifically.
+                 return None # Indicate failure to find time
+
+            # Assuming travel_time is the first property if requested
+            travel_time_seconds = properties[0].get("travel_time")
+
+            if travel_time_seconds is not None and isinstance(travel_time_seconds, (int, float)) and travel_time_seconds >= 0:
+                # --- Prepare the structured response (Total only, as mode breakdown isn't directly available in time-filter) ---
+                # The time-filter response gives the total time, not parts breakdown by default.
+                # To get parts, you'd need to request 'route' in properties and parse *that*,
+                # similar to the previous GET /routes logic.
+                # For now, just return the total time as requested by "properties": ["travel_time"]
+                response_dict = {
+                     "total_travel_time_seconds": int(travel_time_seconds),
+                     # Mode breakdown is NOT directly available here. Add placeholder or remove.
+                     # modal.value: int(travel_time_seconds) # Assign total time to the requested mode? Maybe misleading.
+                }
+                response_dict.update(mode_times)
+                # Let's return a simpler dict for now, focusing on total time from time-filter
+                return response_dict
+
+            else:
+                logger.warning(f"WARN: 'travel_time' não encontrado ou inválido nas propriedades do destino. Properties: {properties}")
+                return None
+            # --- End Parsing ---
+
+    # Keep outer exception handling
     except httpx.TimeoutException:
-        print("ERRO: Timeout ao chamar Travel Time API.")
+        logger.error("ERRO: Timeout ao chamar Travel Time API.")
         return None
     except httpx.RequestError as exc:
-        print(f"ERRO: Erro na requisição para Travel Time API: {exc}")
-        # Verificar se exc.response existe para logar status code/body
+        logger.error(f"ERRO: Erro na requisição para Travel Time API: {exc}")
         if exc.response is not None:
-            print(f"Travel Time Response Status: {exc.response.status_code}")
+            logger.error(f"Travel Time Response Status: {exc.response.status_code}")
             try:
-                print(f"Travel Time Response Body: {exc.response.json()}")
+                logger.error(f"Travel Time Response Body: {exc.response.json()}")
             except:
-                print(f"Travel Time Response Body: {exc.response.text}")
+                logger.error(f"Travel Time Response Body: {exc.response.text}")
         return None
     except Exception as e:
-        print(f"ERRO: Erro inesperado ao processar Travel Time API: {e}")
+        logger.exception(f"ERRO: Erro inesperado ao processar Travel Time API POST: {e}") # Use logger.exception
         return None
