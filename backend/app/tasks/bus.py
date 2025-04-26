@@ -14,20 +14,21 @@ def get_bus():
     
     sao_paulo_tz = ZoneInfo("America/Sao_Paulo")
     now = datetime.now(sao_paulo_tz)
-    some_minutes_ago = now - timedelta(minutes=1)
+    some_minutes_ago = now - timedelta(minutes=5)
 
 
     data_final_str = now.strftime('%Y-%m-%d+%H:%M:%S')
     data_inicial_str = some_minutes_ago.strftime('%Y-%m-%d+%H:%M:%S')
 
     params = {
-        'dataInicial': data_final_str,
+        'dataInicial': data_inicial_str,
         'dataFinal': data_final_str
     }
     print(f"Task get_bus: Buscando dados entre {data_final_str} e {data_final_str}")
 
     try:
-        response_get = requests.get(API_URL, params=params, timeout=45)
+        url_get = f"https://dados.mobilidade.rio/gps/sppo?dataInicial={params['dataInicial']}&dataFinal={params['dataFinal']}"
+        response_get = requests.get(url_get, timeout=45)
         # Levanta uma exceção para respostas HTTP ruins (4xx ou 5xx)
         response_get.raise_for_status()
 
