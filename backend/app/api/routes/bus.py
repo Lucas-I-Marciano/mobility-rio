@@ -1,5 +1,5 @@
-from fastapi import APIRouter, HTTPException, Query, Path
-from typing import Annotated
+from fastapi import APIRouter, HTTPException, Query, Path, Body
+from typing import Annotated, List
 import math
 import json
 import redis
@@ -7,6 +7,7 @@ import logging
 
 from app.core.redis import redis_client
 from app.services.redis import get_latest_bus_data
+from app.services.bus_filtering import filter_and_paginate_buses
 from app.core.exceptions import (
     RedisServiceUnavailableError,
     DataNotFoundError,
@@ -18,30 +19,27 @@ from app.core.exceptions import (
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/bus")
 
-@router.get("/filter")
+@router.post("/filter")
 def filter_bus(
     page: Annotated[int, Query(ge=1, description="Número da página desejada")] = 1,
-    limit: Annotated[int, Query(ge=1, le=100, description="Número de itens por página (máx 100)")] = 10
+    limit: Annotated[int, Query(ge=1, le=100, description="Número de itens por página (máx 100)")] = 10,
+    lines: Annotated[List[str] | None, Body(description="Filtrar pela linha do ônibus (opcional)")] = None
     ):
     logger.info(f"Received request for /filter?page={page}&limit={limit}")
     try:
+        # 1. Get all data from Redis service
         full_bus_list = get_latest_bus_data()
 
-        # --- Pagination Logic ---
-        total_items = len(full_bus_list)
-        offset = (page - 1) * limit
-        total_pages = math.ceil(total_items / limit) if limit > 0 else 0
-        paginated_items = full_bus_list[offset : offset + limit]
-        # --- End Pagination ---
+        # 2. Apply filtering and pagination using the dedicated service
+        result = filter_and_paginate_buses(
+            full_bus_list=full_bus_list,
+            page=page,
+            limit=limit,
+            lines=lines
+        )
 
-        logger.info(f"Returning {len(paginated_items)} items for page {page}/{total_pages}")
-        return {
-            "total_items": total_items,
-            "total_pages": total_pages,
-            "current_page": page,
-            "limit": limit,
-            "items": paginated_items
-        }
+        logger.info(f"Returning {len(result['items'])} items for page {result['current_page']}/{result['total_pages']} (Line: {lines or 'All'})")
+        return result
 
     except RedisServiceUnavailableError as e:
         logger.warning(f"Redis service unavailable: {e}")
