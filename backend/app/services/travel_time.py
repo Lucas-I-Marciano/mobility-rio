@@ -3,6 +3,7 @@ import os
 import httpx # Ou import requests
 import logging
 from zoneinfo import ZoneInfo
+from datetime import timezone 
 from app.schemas.travel_mode import TravelMode # Assuming Enum is here
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,8 @@ async def get_travel_time_estimate(
     origin_lng: float,
     dest_lat: float,
     dest_lng: float,
-    modal: TravelMode # Use the Enum type
+    modal: TravelMode, # Use the Enum type
+    departure_time: datetime
 ):
     """
     Calculates the estimated travel time using the Travel Time API via POST.
@@ -27,9 +29,16 @@ async def get_travel_time_estimate(
 
     # --- Calculate Departure Time (UTC ISO) ---
     try:
-        # Use current time + buffer, ensure it's UTC
-        departure_time_dt = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=30) # Increased buffer slightly
-        departure_time_iso = departure_time_dt.isoformat(timespec='seconds').replace('+00:00', 'Z')
+       if departure_time.tzinfo is None:
+            # Isso não deveria acontecer se o frontend enviar offset
+            logger.error("Erro: departure_time recebido sem informação de fuso horário.")
+            # Você pode tentar aplicar um fuso padrão aqui ou levantar erro
+            raise ValueError("departure_time deve incluir informação de fuso horário.")
+       # Converte o datetime 'aware' para UTC
+       departure_time_utc = departure_time.astimezone(timezone.utc)
+       # Formata para ISO 8601 com 'Z' (Zulu time = UTC)
+       # Removendo microssegundos se houver e adicionando Z
+       departure_time_iso_z = departure_time_utc.strftime('%Y-%m-%dT%H:%M:%SZ')
     except Exception as e:
         logger.error(f"Erro ao calcular departure_time: {e}")
         return None
@@ -63,7 +72,7 @@ async def get_travel_time_estimate(
                 "id": "search_eta_from_origin_to_dest", # Arbitrary search ID
                 "departure_location_id": "origin_point", # Match origin ID
                 "arrival_location_ids": ["destination_point"], # Match destination ID(s)
-                "departure_time": departure_time_iso,
+                "departure_time": departure_time_iso_z,
                 # Request only travel_time, maybe distance if needed?
                 "properties": ["travel_time", "route", "fares"],
                 "transportation": {
@@ -76,7 +85,7 @@ async def get_travel_time_estimate(
     }
     # --- End Request Body ---
 
-    logger.info(f"Enviando requisição POST para Travel Time API: {api_url}")
+    logger.info(f"Enviando requisição POST para Travel Time API: {api_url} com departure_time: {departure_time_iso_z}")
     # logger.debug(f"Request Body: {request_body}") # Log body only if needed for debug
 
     try:
