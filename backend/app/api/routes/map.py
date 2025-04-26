@@ -39,6 +39,7 @@ async def calculate_eta_route(request_data: ETARequest): # Recebe o corpo como m
             origin_lng=request_data.origin_lng,
             dest_lat=request_data.dest_lat,
             dest_lng=request_data.dest_lng,
+            modal=request_data.modal.value
         )
 
         # 4. Verifique o resultado e retorne apropriadamente
@@ -62,3 +63,4 @@ async def calculate_eta_route(request_data: ETARequest): # Recebe o corpo como m
         # Captura outros erros inesperados
         logger.exception(f"Erro inesperado ao processar /map/eta: {e}") # logger.exception inclui traceback
         raise HTTPException(status_code=500, detail="Erro interno no servidor ao calcular ETA.")
+
