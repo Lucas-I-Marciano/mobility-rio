@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import Annotated, Dict
 from pydantic import BaseModel, Field
+from datetime import datetime
 import logging # Para logar erros
 
 from app.services.travel_time import get_travel_time_estimate
@@ -20,6 +21,7 @@ class ETARequest(BaseModel):
     dest_lat: float = Field(..., description="Latitude de destino")
     dest_lng: float = Field(..., description="Longitude de destino")
     modal: TravelMode = Field(..., description="Modo de transporte desejado")
+    departure_time: datetime = Field(..., description="Data e hora de partida (formato ISO 8601 com offset, ex: 2025-04-25T22:30:00-03:00)")
 
 class ETAResponse(BaseModel):
     total_travel_time_seconds: int
@@ -39,7 +41,8 @@ async def calculate_eta_route(request_data: ETARequest): # Recebe o corpo como m
             origin_lng=request_data.origin_lng,
             dest_lat=request_data.dest_lat,
             dest_lng=request_data.dest_lng,
-            modal=request_data.modal.value
+            modal=request_data.modal.value,
+            departure_time=request_data.departure_time
         )
 
         # 4. Verifique o resultado e retorne apropriadamente
