@@ -137,7 +137,17 @@ def check_bus_alerts(): # Async pois chama get_travel_time_estimate
                             logger.info(f"ALERTA! Bus {bus_ordem} para alert {alert.id} ({alert.user_email}) está a {eta_seconds}s.")
                             # --- 3i. Enviar Notificação ---
                             # Chame sua função de envio de email aqui
-                            send_notification_email(email=alert.user_email, subject=f"Linha {alert.bus_line} em {eta_seconds/60} minutos", body=f"Ônibus{bus_ordem} da linha {alert.bus_line} chegará no ponto cadastrado em {eta_seconds/60} minutos" )
+                            html_content = f"""
+                            <!DOCTYPE html>
+                            <html>
+                            <body>
+                                <h1>Ônibus chegando</h1>
+                                <p>Ônibus{bus_ordem} da linha {alert.bus_line} chegará no ponto cadastrado em {eta_seconds/60} minutos</p>
+                                <p>Pode se direcionar ao ponto de ônibus.</p>
+                            </body>
+                            </html>
+                            """
+                            send_notification_email(recipient_email=alert.user_email, email_subject=f"Linha {alert.bus_line} em {eta_seconds/60} minutos", body_plain_text=f"Ônibus{bus_ordem} da linha {alert.bus_line} chegará no ponto cadastrado em {eta_seconds/60} minutos", body_html_content=html_content)
 
                             # --- 3j. Marcar Cooldown ---
                             if redis_client:
