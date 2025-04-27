@@ -35,8 +35,11 @@ def process_vehicle_data(data: dict) -> dict:
         # Ordena a lista com base na chave (timestamp) do dicionário interno
         timestamp_list.sort(key=lambda item: int(next(iter(item))))
 
+    all_grouped_data = data.get('results', [])
+    all_grouped_data.sort(key=lambda item: item["datahora"])
+
     # Converte defaultdict de volta para dict para a saída final (opcional, mas comum)
-    return dict(grouped_data)
+    return {"only_time" : dict(grouped_data), "all_data" : all_grouped_data}
 
 def analyze_vehicle_movement(grouped_sorted_data: dict) -> list:
     """
@@ -88,7 +91,7 @@ def analyze_vehicle_movement(grouped_sorted_data: dict) -> list:
     return movement_analysis_result
 
 def analyze_vehicle_movement_distance(results_with_distance):
-    processed_data = process_vehicle_data({"results" : results_with_distance})
+    processed_data = process_vehicle_data({"results" : results_with_distance})["only_time"]
     vehicle_movement = analyze_vehicle_movement(processed_data)
     logger.info(f"Calculated distances for {len(results_with_distance)} buses.")
     # Using logger.debug might be better for potentially large output
