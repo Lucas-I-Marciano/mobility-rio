@@ -68,6 +68,7 @@ export const BusLineSelector = () => {
         time_window_start: time_window_start_iso,
         time_window_end: time_window_end_iso,
         alert_active: true, // Defaulting to active
+        start_alert_iso: time_window_end_iso,
       };
       console.log("Sending payload:", payload);
 
@@ -121,7 +122,7 @@ export const BusLineSelector = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col p-5 items-center gap-1"
+      className="flex flex-col p-5 items-center gap-1 max-w-100"
     >
       <label>Selecione a Linha</label>
       <select
@@ -143,11 +144,19 @@ export const BusLineSelector = () => {
       <input className={inputClass} type="text" {...register("email")} />
       <p className={errorClass}>{errors.email?.message}</p>
       <label htmlFor="">Horário de Saída</label>
+
       <input
         className={inputClass}
         type="datetime-local"
         {...register("datetime")}
       />
+      <span className="text-xs -mt-1 mb-2 text-center italic">
+        Usaremos o dia como data de início dos lembretes
+        <br />
+        Depois sempre enviaremos próximo ao horário definido
+        <br />
+        Até você desativar o alerta
+      </span>
       <p className={errorClass}>{errors.datetime?.message}</p>
       {lines.length === 0 && !loading && <div>No bus lines available.</div>}
 
