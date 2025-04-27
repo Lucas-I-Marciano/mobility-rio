@@ -151,7 +151,7 @@ def get_bus_distance(
             dest_lng=dest_lng_float
         )
 
-        processed_data = process_vehicle_data({"results" : results_with_distance})
+        processed_data = process_vehicle_data({"results" : results_with_distance})["only_time"]
         vehicle_movement = analyze_vehicle_movement(processed_data)
         logger.info(f"Calculated distances for {len(results_with_distance)} buses.")
         # Using logger.debug might be better for potentially large output
