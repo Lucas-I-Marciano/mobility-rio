@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
-from pydantic import field_validator
+from pydantic import field_validator, Field
 
 SAO_PAULO_TZ = ZoneInfo("America/Sao_Paulo")
 
@@ -14,6 +14,7 @@ class UserAlertCreate(SQLModel):
     time_window_start: datetime
     time_window_end: datetime
     alert_active: bool | None = True # Pode ser opcional na criação, default True
+    start_alert_iso: str = Field(description="Timestamp ISO 8601 a ser armazenado para filtro (ex: 2025-04-27T12:59:00-03:00)")
     
     @field_validator('time_window_start', 'time_window_end', mode='after')
     @classmethod
@@ -44,8 +45,8 @@ class UserAlertRead(SQLModel):
     time_window_start: time
     time_window_end: time
     alert_active: bool
-    # created_at: datetime
-    # updated_at: datetime
+    created_at: datetime
+    updated_at: datetime
 
 class UserAlertUpdate(SQLModel):
     user_email: str | None = None
