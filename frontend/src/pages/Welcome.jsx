@@ -1,69 +1,144 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
 
-import logo from "../assets/logo_pref_rio.png"
+import logo from "../assets/logo_pref_rio.png";
+import { WifiIcon } from "@heroicons/react/24/solid";
 
 export const Welcome = () => {
-    let navigate = useNavigate()
-    const [location, setLocation] = useState(null);
-    const [error, setError] = useState(null)
-    const locationAccess = async () => {
-        if (navigator.geolocation) {
-            try {
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject);
-                });
+  const navigate = useNavigate();
+  const [location, setLocation] = useState(null); // { latitude: number, longitude: number } | null
+  const [error, setError] = useState(null); // string | null
+  const [isLoading, setIsLoading] = useState(false); // Loading state
 
-                setLocation({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                });
-            } catch (err) {
-                setError(err.message);
-            }
-        } else {
-            setError('Geolocation is not supported by this browser.');
-        }
-
+  const requestLocationAccess = async () => {
+    if (!navigator.geolocation) {
+      setError(
+        "Geolocalização não é suportado por esse navegador. Tente em um dispositico diferente"
+      );
+      return;
     }
 
-    return (
-        <>
-            <div className="flex flex-col gap-5 items-center">
-                <div className="w-screen bg-blue-900 flex items-center justify-center gap-4 p-10">
-                    <img src={logo} className="w-30"></img>
-                    <p className="text-white text-5xl"> + </p>
-                    <svg
-                        fill="#000000" version="1.1" id="Capa_1" width="50px" viewBox="0 0 407.31 407.31"
-                    >
+    setIsLoading(true);
+    setError(null); // Clear previous errors
+    setLocation(null); // Clear previous location
 
-                        <path d="M203.652,241.068c-33.646,0-61.019,27.371-61.019,61.016c0,33.646,27.371,61.019,61.019,61.019
-			c33.645,0,61.018-27.371,61.018-61.019C264.669,268.439,237.296,241.068,203.652,241.068z M203.652,335.617
-			c-18.486,0-33.531-15.045-33.531-33.533c0-18.486,15.045-33.531,33.531-33.531c18.494,0,33.531,15.045,33.531,33.531
-			C237.183,320.572,222.146,335.617,203.652,335.617z"/>
-                        <path d="M203.652,174.603c-40.578,0-78.728,15.81-107.42,44.503c-5.367,5.367-5.367,14.064,0,19.432
-			c2.686,2.686,6.2,4.027,9.717,4.027c3.518,0,7.033-1.342,9.717-4.027c23.5-23.506,54.75-36.45,87.986-36.45
-			c33.242,0,64.486,12.944,87.992,36.45c5.36,5.369,14.071,5.369,19.434,0c5.367-5.367,5.367-14.064,0-19.432
-			C282.383,190.411,244.236,174.603,203.652,174.603z"/>
-                        <path d="M47.832,170.696c-5.369,5.368-5.369,14.064,0,19.433c5.361,5.368,14.064,5.368,19.434,0
-			c75.209-75.195,197.572-75.195,272.781,0c2.685,2.685,6.199,4.026,9.718,4.026c3.516,0,7.03-1.342,9.715-4.026
-			c5.369-5.368,5.369-14.064,0-19.433C273.56,84.778,133.75,84.778,47.832,170.696z"/>
-                        <path d="M403.285,126.898c-53.328-53.326-124.223-82.691-199.633-82.691S57.346,73.572,4.027,126.898
-			c-5.369,5.368-5.369,14.065,0,19.434c5.366,5.368,14.069,5.368,19.432,0c48.135-48.134,112.123-74.639,180.193-74.639
-			s132.065,26.505,180.199,74.639c2.684,2.684,6.198,4.026,9.717,4.026c3.516,0,7.031-1.343,9.717-4.026
-			C408.652,140.963,408.652,132.266,403.285,126.898z"/>
+    try {
+      const position = await new Promise((resolve, reject) => {
+        // Added timeout for better UX in case it hangs
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          timeout: 10000, // 10 seconds timeout
+        });
+      });
 
-                    </svg>
-                </div>
-                <h1 className="text-xl font-bold">Facilitador de Mobilidade do Rio de Janeiro</h1>
-                <p>Bem vindo ao facilitador de Mobilidade do Rio de Janeiro</p>
-                <p>Precisamos acessar a sua localidade para conseguir te ajudar com os ônibus mais próximos</p>
-                <button onClick={() => { locationAccess() }} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-900 dark:hover:bg-blue-300 dark:hover:text-black focus:outline-none dark:focus:ring-blue-800">Conceder acesso a Localização!</button>
-                {location ?
-                    <button className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" onClick={() => { navigate("/confirm") }}>Navegue para nosso Dashboard</button>
-                    : null}
-                {error ? <p>{error}</p> : null}
-            </div>
-        </>
-    )
-}
+      const coords = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      };
+      setLocation(coords);
+      console.log("Location obtained:", coords);
+      // Optionally call a prop function passed from parent
+      // if (onLocationObtained) {
+      //   onLocationObtained(coords);
+      // }
+      // Automatically navigate after obtaining location? Or keep button?
+      // navigate("/confirm", { state: { location: coords } }); // Option: auto-navigate
+    } catch (err) {
+      console.error("Geolocation error:", err);
+      // Provide more user-friendly error messages
+      if (err.code === err.PERMISSION_DENIED) {
+        setError(
+          "Permissão de localização negada. Por favor, habilite nas configurações do seu navegador."
+        );
+      } else if (err.code === err.POSITION_UNAVAILABLE) {
+        setError("Informação de localização indisponível no momento.");
+      } else if (err.code === err.TIMEOUT) {
+        setError("Tempo esgotado ao tentar obter localização.");
+      } else {
+        setError("Erro ao obter localização.");
+      }
+    } finally {
+      setIsLoading(false); // Ensure loading is set to false in both success/error cases
+    }
+  };
+
+  const handleNavigate = () => {
+    // Pass location state if needed by the next route
+    navigate("/confirm", { state: { location: location } });
+  };
+
+  return (
+    // Use min-h-screen and bg-gray-100 for basic page layout? Assumed white background for now.
+    <div className="flex flex-col min-h-screen items-center">
+      {/* Header Section */}
+      {/* Using w-full and maybe max-w-* on content is often better than w-screen */}
+      <div className="w-full bg-gradient-to-r from-blue-800 to-blue-900 flex items-center justify-center gap-4 p-6 md:p-10 shadow-md">
+        {/* Adjusted logo size and added alt text */}
+        <img
+          src={logo}
+          className="w-20 md:w-24 h-auto"
+          alt="Logo Prefeitura Rio"
+        />
+        {/* <p className="text-white text-4xl md:text-5xl font-thin mx-2">+</p> */}
+        {/* Replaced inline SVG with a placeholder comment, recommend using an icon library or optimized SVG */}
+        {/* Placeholder for Wifi/GPS Icon - Use Heroicons, FontAwesome, etc. */}
+        <WifiIcon
+          className="w-10 h-10 md:w-12 md:h-12 text-white"
+          aria-hidden="true"
+        />
+      </div>
+
+      {/* Content Section */}
+      <div className="flex flex-col gap-5 items-center p-6 text-center max-w-2xl">
+        {" "}
+        {/* Added padding and max-width */}
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mt-6">
+          Facilitador de Mobilidade do Rio de Janeiro
+        </h1>
+        <p className="text-gray-600">
+          Bem-vindo! Para te ajudar a encontrar os ônibus próximos e calcular
+          tempos de chegada, precisamos da sua localização.
+        </p>
+        {/* Action Button Area */}
+        <div className="mt-4">
+          {!location && ( // Show grant button only if location is not yet set
+            <button
+              onClick={requestLocationAccess}
+              disabled={isLoading} // Disable while loading
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-base px-6 py-3 me-2 mb-2 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+              // Removed dark mode classes for brevity, add back if needed
+            >
+              {isLoading
+                ? "Obtendo Localização..."
+                : "Permitir Acesso à Localização"}
+            </button>
+          )}
+
+          {location && ( // Show navigate button only after success
+            <button
+              onClick={handleNavigate}
+              className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-base px-6 py-3 me-2 mb-2 transition duration-150 ease-in-out"
+              // Removed dark mode classes for brevity
+            >
+              Ver Ônibus Próximos
+            </button>
+          )}
+        </div>
+        {/* Error Message Area */}
+        {error && (
+          <div
+            className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm"
+            role="alert"
+            aria-live="polite"
+          >
+            <p>
+              <strong>Erro:</strong> {error}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Optional: Export if not default export
+// export default Welcome;
