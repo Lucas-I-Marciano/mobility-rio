@@ -45,6 +45,9 @@ class UserAlert(SQLModel, table=True):
             onupdate=func.now()        # Atualiza automaticamente no DB
         )
     )
+    start_alert_iso: str = Field(
+        sa_column=Column(String(50), nullable=False)
+    )
 
     # Definição de índices compostos ou mais complexos
     __table_args__ = (
