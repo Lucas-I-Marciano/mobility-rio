@@ -1,40 +1,94 @@
-import { useState } from "react";
+import React, { useState } from "react"; // Removido useLocation de context se não usado direto aqui
 import { MapBusStop } from "../components/MapBusStop";
-import { useLocation } from "../context/location";
-
-import BusLineSelector from "../components/BusLineSelector";
+import { useLocation as useReactRouterLocation } from "react-router";
+import { AlertForm } from "../components/AlertForm"; // Importa o novo formulário
+import { useLocation } from "../context/location"; // Para pegar busStopLocation
 
 export const ChoseBusStop = () => {
-  const { userLocation, busStopLocation } = useLocation();
+  const routerLocation = useReactRouterLocation();
+  // Pega a localização confirmada passada pela rota anterior
+  const confirmedUserLocation = routerLocation.state?.userLocation;
+  // Pega o ponto de ônibus selecionado no mapa desta página
+  const { busStopLocation } = useLocation();
   const [showForm, setShowForm] = useState(false);
+
+  // Se não houver localização confirmada da página anterior, talvez redirecionar ou mostrar erro
+  if (!confirmedUserLocation) {
+    // TODO: Lidar com caso de usuário chegar aqui sem localização confirmada
+    // Ex: return <Navigate to="/" />; ou mostrar mensagem
+    return (
+      <div>Erro: Localização do usuário não definida. Volte ao início.</div>
+    );
+  }
+
+  const handleConfirmStop = () => {
+    if (busStopLocation) {
+      setShowForm(true); // Mostra o formulário ao confirmar o ponto
+    }
+  };
+
   return (
     <>
-      <div className="flex flex-col items-center pb-5">
-        <p>
-          Clique no ponto de ônibus mais próximo de você e confirme para
-          enviarmos te avisarmos quando o próximo ônibus passará
+      {/* Adicionar um Header/Navbar consistente aqui pode ser bom */}
+      <div className="flex flex-col items-center p-4 gap-2">
+        <h1 className="text-xl font-semibold text-gray-700">
+          Selecione o Ponto de Ônibus
+        </h1>
+        <p className="text-gray-600 text-center px-2 max-w-lg">
+          O mapa está centralizado na sua localização confirmada. Clique no
+          local exato do ponto de ônibus que você utiliza.
         </p>
-        <p>
-          Cada quadrado azul é um ponto de ônibus, aumente o zoom para uma
-          precisão melhor
-        </p>
+        {/* <p className="text-xs text-gray-500">
+                    (Se houver marcadores de pontos oficiais, mencione aqui)
+                </p> */}
       </div>
-      <div className="content flex gap-5">
-        <div>
-          <MapBusStop />
-          {userLocation == null ? null : (
-            <button
-              onClick={() => {
-                console.log(busStopLocation);
-                setShowForm(true);
-              }}
-              className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-            >
-              Confirmar
-            </button>
-          )}
+
+      {/* Layout principal: Mapa à esquerda/em cima, Formulário à direita/embaixo */}
+      <div className="flex flex-col lg:flex-row gap-5 p-4 items-start justify-center">
+        {/* Coluna do Mapa e Botão Confirmar Ponto */}
+        <div
+          className={`flex-shrink-0 w-full lg:w-1/2 ${
+            showForm ? "lg:w-1/3" : "lg:w-2/3"
+          } transition-all duration-300 ease-in-out`}
+        >
+          {" "}
+          {/* Ajusta largura */}
+          {/* Passa a localização confirmada para centralizar o mapa */}
+          <MapBusStop initialCenter={confirmedUserLocation} />
+          <div className="mt-3 text-center">
+            {busStopLocation &&
+              !showForm && ( // Mostra botão só se ponto selecionado E form não visível
+                <button
+                  onClick={handleConfirmStop}
+                  className="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 transition duration-150 ease-in-out"
+                >
+                  Confirmar Ponto e Preencher Dados
+                </button>
+              )}
+            {busStopLocation && ( // Mostra coordenadas selecionadas
+              <p className="text-xs text-gray-500 mt-2">
+                Ponto selecionado: Lat {busStopLocation.lat.toFixed(5)}, Lng{" "}
+                {busStopLocation.lng.toFixed(5)}
+              </p>
+            )}
+            {!busStopLocation && (
+              <p className="text-sm text-gray-500 italic mt-2">
+                Clique no mapa para selecionar o ponto...
+              </p>
+            )}
+          </div>
         </div>
-        {showForm ? <BusLineSelector /> : null}
+
+        {/* Coluna do Formulário (condicional) */}
+        {showForm && busStopLocation && (
+          <div className="w-full lg:w-1/2 lg:max-w-md p-4 border rounded-lg shadow-md bg-white transition-all duration-300 ease-in-out">
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+              Detalhes do Alerta
+            </h2>
+            {/* Passa o ponto selecionado para o formulário */}
+            <AlertForm selectedBusStop={busStopLocation} />
+          </div>
+        )}
       </div>
     </>
   );
