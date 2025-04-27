@@ -1,5 +1,6 @@
 from collections import defaultdict
 import logging
+from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
 
@@ -121,3 +122,115 @@ def analyze_vehicle_movement_distance(results_with_distance):
             # Opcional: Define um valor padrão caso a chave não exista em processed_data ou a lista esteja vazia
             item['distance'] = None # ou 0, ou outra indicação de que não foi encontrado
     return vehicle_movement
+
+def _placeholder_process_vehicle_data(buses_with_distance: List[Dict[str, Any]]) -> Any:
+    # Esta função pode ser necessária ou não, dependendo do que
+    # analyze_vehicle_movement REALMENTE precisa como entrada.
+    # Se for só para agrupar por 'ordem', talvez seja feito dentro da análise.
+    # Por enquanto, retorna algo que a análise possa usar.
+    logger.debug(f"Placeholder: process_vehicle_data recebeu {len(buses_with_distance)} registros.")
+    # Exemplo: agrupar por ordem para análise de histórico (se for o caso)
+    grouped_data = {}
+    for bus in buses_with_distance:
+        ordem = bus.get("ordem")
+        if ordem:
+            if ordem not in grouped_data:
+                grouped_data[ordem] = []
+            grouped_data[ordem].append(bus) # Adiciona o registro completo
+    return grouped_data
+
+def _placeholder_analyze_vehicle_movement(processed_data_grouped_by_ordem: Dict[str, List[Dict[str, Any]]]) -> Dict[str, bool]:
+    # *** PONTO CRÍTICO DA REFATORAÇÃO ***
+    # Esta função precisa ser ajustada para retornar um dicionário:
+    # {'ordem1': True, 'ordem2': False, ...} (True = approaching)
+    # A lógica exata para determinar 'approaching' está aqui dentro.
+    # Talvez compare a penúltima distância com a última para cada 'ordem'?
+    logger.debug("Placeholder: analyze_vehicle_movement sendo executado...")
+    approaching_map = {}
+    for ordem, records in processed_data_grouped_by_ordem.items():
+        if len(records) >= 2:
+            # Lógica de exemplo: se a distância mais recente for menor que a anterior, está aproximando
+            last_distance = records[-1].get('distance_km')
+            previous_distance = records[-2].get('distance_km')
+            if last_distance is not None and previous_distance is not None:
+                approaching_map[ordem] = last_distance < previous_distance
+            else:
+                approaching_map[ordem] = False # Não é possível determinar
+        else:
+             approaching_map[ordem] = False # Não há histórico suficiente
+
+    # Simular o resultado que você mencionou antes para alguns IDs
+    # approaching_map["B71033"] = True
+    # approaching_map["B71058"] = False
+    # approaching_map["B71063"] = False
+    # approaching_map["A29052"] = True # Adicionando do exemplo de entrada
+
+    logger.debug(f"Placeholder: Movement analysis map gerado: {approaching_map}")
+    return approaching_map
+
+# --- Função Principal Refatorada ---
+
+def analyze_vehicle_proximity(
+    buses_with_distance: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    """
+    Analisa uma lista de ônibus (com distância já calculada) para determinar
+    se estão se aproximando de um destino e retorna uma lista estruturada.
+
+    Args:
+        buses_with_distance: Lista de dicionários de ônibus, cada um DEVE
+                             conter 'ordem' (str) e 'distance_km' (float).
+
+    Returns:
+        Uma lista de dicionários no formato:
+        [{'ordem': str, 'approaching': bool, 'distance': float}, ...],
+        ou uma lista vazia em caso de erro ou entrada inválida.
+    """
+    if not isinstance(buses_with_distance, list) or not buses_with_distance:
+        logger.warning("analyze_vehicle_proximity recebeu entrada inválida ou vazia.")
+        return []
+
+    logger.info(f"Iniciando análise de proximidade para {len(buses_with_distance)} ônibus.")
+
+    try:
+        # Passo 1: Determinar status de aproximação para cada ônibus
+        # (Estas chamadas dependem da implementação real das funções placeholder)
+        processed_data = _placeholder_process_vehicle_data(buses_with_distance)
+        approaching_status_map = _placeholder_analyze_vehicle_movement(processed_data)
+
+    except Exception as e:
+        logger.exception(f"Erro durante a análise interna de movimento: {e}")
+        return [] # Retorna vazio se a análise falhar
+
+    # Passo 2: Combinar resultados no formato desejado
+    final_results = []
+    processed_ordens = set() # Para lidar com possíveis duplicatas na entrada original
+
+    # Iteramos pela lista original para manter a ordem e pegar a distância mais recente
+    for bus in reversed(buses_with_distance): # Iterar de trás pra frente pega o último registro primeiro
+        if not isinstance(bus, dict): continue
+
+        ordem = bus.get("ordem")
+        distance = bus.get("distance_km")
+
+        # Processa cada 'ordem' apenas uma vez (o último registro dela)
+        if ordem and ordem not in processed_ordens and isinstance(distance, (int, float)):
+            processed_ordens.add(ordem) # Marca como processado
+
+            # Pega o status de aproximação do mapa, default False se não encontrado
+            is_approaching = approaching_status_map.get(ordem, False)
+
+            final_results.append({
+                "ordem": ordem,
+                "approaching": is_approaching,
+                "distance": distance # Usa a distância já calculada e arredondada
+            })
+        elif ordem and ordem not in processed_ordens:
+             logger.warning(f"Ônibus {ordem} sem distance_km válida no último registro: {bus}")
+
+
+    # Reverte a lista para manter a ordem original aproximada (opcional)
+    final_results.reverse()
+
+    logger.info(f"Análise de proximidade gerou {len(final_results)} resultados estruturados.")
+    return final_results
