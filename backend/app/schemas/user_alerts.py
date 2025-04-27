@@ -5,7 +5,7 @@ import datetime
 class UserAlertCreate(SQLModel):
     # Campos esperados ao criar um novo alerta via API
     user_email: str
-    bus_line: list[str]
+    bus_line: list[str] | str
     stop_latitude: Decimal
     stop_longitude: Decimal
     time_window_start: datetime.time
