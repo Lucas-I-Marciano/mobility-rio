@@ -3,7 +3,9 @@ import { fetchBusLines } from "../services/bus";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { formatISO } from "date-fns";
+import { formatISO, subMinutes } from "date-fns";
+import { useLocation } from "../context/location";
+import { createAlert } from "../services/alerts";
 
 const schema = yup
   .object({
@@ -26,15 +28,62 @@ export const BusLineSelector = () => {
   const [error, setError] = useState(null);
   const [selectedLine, setSelectedLine] = useState("");
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null); // 'success' or null
+  const [submitError, setSubmitError] = useState(null); // Error message string or null
+
+  const { busStopLocation } = useLocation();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: yupResolver(schema) });
-  const onSubmit = (data) => {
-    const toReturn = data;
-    toReturn["datetime"] = formatISO(toReturn["datetime"]);
-    console.log(toReturn);
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+    setSubmitError(null);
+
+    if (!busStopLocation || !busStopLocation.lat || !busStopLocation.lng) {
+      setSubmitError("Bus stop location is missing.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      // 1. Prepare dates
+      const endDate = data.datetime; // JS Date object from form
+      const startDate = subMinutes(endDate, 30);
+      const time_window_end_iso = formatISO(endDate);
+      const time_window_start_iso = formatISO(startDate);
+
+      // 2. Construct payload for the backend
+      const payload = {
+        user_email: data.email,
+        // Handle single line for now based on previous model example
+        // If form allows multiple lines, adjust data.line handling
+        bus_line: data.line,
+        stop_latitude: busStopLocation.lat,
+        stop_longitude: busStopLocation.lng,
+        time_window_start: time_window_start_iso,
+        time_window_end: time_window_end_iso,
+        alert_active: true, // Defaulting to active
+      };
+      console.log("Sending payload:", payload);
+
+      // 3. Call the API service function
+      const createdAlert = await createAlert(payload);
+      console.log("Alert created:", createdAlert);
+      setSubmitStatus("Alert created successfully!");
+    } catch (error) {
+      console.error("Failed to submit alert:", error);
+      setSubmitError(
+        error.response?.data?.detail ||
+          "Failed to create alert. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -101,10 +150,16 @@ export const BusLineSelector = () => {
       />
       <p className={errorClass}>{errors.datetime?.message}</p>
       {lines.length === 0 && !loading && <div>No bus lines available.</div>}
-      <input
-        className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+
+      <button
         type="submit"
-      />
+        disabled={isSubmitting}
+        className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+      >
+        {isSubmitting ? "Criando alerta..." : "Criar Alerta"}
+      </button>
+      {submitStatus && <div className="text-green-700">{submitStatus}</div>}
+      {submitError && <div className="text-red-700">Error: {submitError}</div>}
     </form>
   );
 };
