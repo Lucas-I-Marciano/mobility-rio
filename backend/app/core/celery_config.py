@@ -10,7 +10,7 @@ celery_app = Celery(
     "app",
     broker=redis_url,
     backend=redis_url,
-    include=['app.tasks.bus'] # onde estão as tarefas
+    include=['app.tasks.bus', 'app.tasks.alerts'] # onde estão as tarefas
 )
 
 celery_app.conf.update(
@@ -27,5 +27,9 @@ celery_app.conf.beat_schedule = {
     'fetch-bus-data-every-minute': {
         'task': 'tasks.fetch_bus_data',
         'schedule': crontab(minute='*/5'), # A cada minuto
+    },
+    'fetch-alert-data-every-minute': {
+        'task': 'tasks.check_bus_alerts',
+        'schedule': crontab(minute='*'), # A cada minuto
     }
 }
