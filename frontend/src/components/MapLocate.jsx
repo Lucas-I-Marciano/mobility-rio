@@ -16,7 +16,7 @@ export function MapLocate() {
         className="h-125 w-100"
         center={[-22.937822, -43.253794]}
         zoom={11}
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
