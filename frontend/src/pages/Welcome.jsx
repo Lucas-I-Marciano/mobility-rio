@@ -68,10 +68,10 @@ export const Welcome = () => {
 
   return (
     // Use min-h-screen and bg-gray-100 for basic page layout? Assumed white background for now.
-    <div className="flex flex-col min-h-screen items-center">
+    <div className="flex flex-col min-h-screen items-center bg-gray-100">
       {/* Header Section */}
       {/* Using w-full and maybe max-w-* on content is often better than w-screen */}
-      <div className="w-full bg-gradient-to-r from-blue-800 to-blue-900 flex items-center justify-center gap-4 p-6 md:p-10 shadow-md">
+      <div className="w-full bg-gradient-to-b from-blue-500 to-blue-900 flex items-center justify-center gap-4 p-6 md:p-10 shadow-md">
         {/* Adjusted logo size and added alt text */}
         <img
           src={logo}
@@ -88,7 +88,7 @@ export const Welcome = () => {
       </div>
 
       {/* Content Section */}
-      <div className="flex flex-col gap-5 items-center p-6 text-center max-w-2xl">
+      <div className="flex flex-col gap-5 items-center p-6 text-center max-w-2xl bg-white shadow-lg rounded-lg mt-10">
         {" "}
         {/* Added padding and max-width */}
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mt-6">
@@ -105,7 +105,7 @@ export const Welcome = () => {
               onClick={requestLocationAccess}
               disabled={isLoading} // Disable while loading
               className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-base px-6 py-3 me-2 mb-2 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
-              // Removed dark mode classes for brevity, add back if needed
+            // Removed dark mode classes for brevity, add back if needed
             >
               {isLoading
                 ? "Obtendo Localização..."
@@ -117,7 +117,7 @@ export const Welcome = () => {
             <button
               onClick={handleNavigate}
               className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-base px-6 py-3 me-2 mb-2 transition duration-150 ease-in-out"
-              // Removed dark mode classes for brevity
+            // Removed dark mode classes for brevity
             >
               Ver Ônibus Próximos
             </button>
@@ -139,6 +139,3 @@ export const Welcome = () => {
     </div>
   );
 };
-
-// Optional: Export if not default export
-// export default Welcome;
