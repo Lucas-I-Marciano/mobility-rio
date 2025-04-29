@@ -42,6 +42,26 @@ def process_vehicle_data(data: dict) -> dict:
     # Converte defaultdict de volta para dict para a saída final (opcional, mas comum)
     return {"only_time" : dict(grouped_data), "all_data" : all_grouped_data}
 
+def sort_by_time(data: dict | list, sort_by: str, result_key : str = None) -> dict:
+    """
+    Agrupa os dados de veículos por 'ordem' e ordena cada grupo por 'datahora'.
+
+    Args:
+        data: Dicionário contendo a chave 'results' com uma lista de registros.
+
+    Returns:
+        Dicionário onde as chaves são 'ordem' e os valores são listas
+        de dicionários {'datahora': 'distance_km'} ordenados por 'datahora'.
+    """
+    if result_key :
+        all_grouped_data = data.get(result_key, [])
+    else :
+        all_grouped_data = data
+    all_grouped_data.sort(key=lambda item: item[sort_by])
+
+    # Converte defaultdict de volta para dict para a saída final (opcional, mas comum)
+    return all_grouped_data
+
 def analyze_vehicle_movement(grouped_sorted_data: dict) -> list:
     """
     Analisa se os veículos estão, de forma geral, se aproximando ou se afastando.
