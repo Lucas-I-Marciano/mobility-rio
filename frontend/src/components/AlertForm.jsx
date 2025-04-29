@@ -18,7 +18,7 @@ const alertSchema = yup.object().shape({
     .typeError("Data/Hora inválida"),
 });
 
-export const AlertForm = ({ selectedBusStop, setLine }) => {
+export const AlertForm = ({ selectedBusStop, setSelectedLineCallback }) => {
   const {
     register,
     handleSubmit,
@@ -55,6 +55,16 @@ export const AlertForm = ({ selectedBusStop, setLine }) => {
     loadBusLines();
   }, []);
 
+  const handleLineChange = (event) => {
+    const newLine = event.target.value;
+    console.log("LINE SELECT - Calling setSelectedLineCallback with:", newLine); // <-- ADICIONE AQUI
+    // Atualiza o estado 'line' no componente pai (ChoseBusStop)
+    // Isso vai disparar o useEffect para buscar os dados da tabela/mapa
+    if (setSelectedLineCallback) {
+      setSelectedLineCallback(newLine || null); // Passa null se selecionar a opção vazia
+    }
+  };
+
   const onSubmitForm = async (data) => {
     setIsSubmitting(true);
     setSubmitStatus(null);
@@ -89,7 +99,7 @@ export const AlertForm = ({ selectedBusStop, setLine }) => {
       console.error("Falha ao criar alerta:", error);
       setSubmitError(
         error.response?.data?.detail ||
-        "Falha ao criar alerta. Tente novamente."
+          "Falha ao criar alerta. Tente novamente."
       );
     } finally {
       setIsSubmitting(false);
@@ -128,9 +138,7 @@ export const AlertForm = ({ selectedBusStop, setLine }) => {
           {...register("line")}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100"
           disabled={isLinesLoading || busLines.length === 0} // Disable while loading or if empty
-          onChange={(lineEvent) => {
-            setLine(lineEvent.target.value);
-          }}
+          onChange={handleLineChange}
         >
           <option value="">
             {isLinesLoading
