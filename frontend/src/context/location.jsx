@@ -11,6 +11,7 @@ export const LocationProvider = ({ children }) => {
   const [busStopLocation, setBusStopLocation] = useState(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false); // Estado de Loading
   const [locationError, setLocationError] = useState(null); // Estado de Erro
+  const [isStopSelectionLocked, setIsStopSelectionLocked] = useState(false); // Inicia como não bloqueado
 
   return (
     <LocationContext.Provider
@@ -23,6 +24,8 @@ export const LocationProvider = ({ children }) => {
         setIsLoadingLocation, // Compartilha loading/error
         locationError,
         setLocationError,
+        isStopSelectionLocked,
+        setIsStopSelectionLocked,
       }}
     >
       {children}
