@@ -344,7 +344,7 @@ def get_latest_bus_records(bus_list: List[Dict[str, Any]]) -> Dict[str, Dict[str
                  latest_records[ordem] = bus
     return latest_records
 
-def get_line_status_with_eta(line_id: str, dest_lat: float, dest_lng: float) -> List[BusStatus]:
+def get_line_status_with_eta(line_id: str, dest_lat: float, dest_lng: float, ordem_id:str = None) -> List[BusStatus]:
     """
     Obtém o status mais recente e verificado dos ônibus de uma linha,
     calcula o ETA condicionalmente e inclui status de aproximação/distância.
@@ -363,6 +363,9 @@ def get_line_status_with_eta(line_id: str, dest_lat: float, dest_lng: float) -> 
         )
         buses_for_line = pagination_result.get("items", [])
         if not buses_for_line: return []
+
+        if ordem_id:
+            buses_for_line = [bus for bus in buses_for_line if bus["ordem"] == ordem_id]
 
     except Exception as e: # Captura erros dos serviços Redis/Filter
         logger.exception(f"Erro ao obter/filtrar dados base para linha {line_id}: {e}")
@@ -395,8 +398,8 @@ def get_line_status_with_eta(line_id: str, dest_lat: float, dest_lng: float) -> 
         is_approaching: bool = bus_info.get("approaching", False) # Pega o status
 
         # Só calcula ETA se estiver se aproximando
-        if is_approaching is True:
-            logger.debug(f"Ônibus {bus_info.get('ordem')} aproximando, calculando ETA...")
+        if is_approaching is True or ordem_id:
+            logger.debug(f"Ônibus {bus_info.get('ordem')} aproximando ou Requisitado pontualmente, calculando ETA...")
             # Pega coords do ônibus atual (resultado da análise)
             lat_str = bus_info.get("latitude")
             lon_str = bus_info.get("longitude")
@@ -413,7 +416,6 @@ def get_line_status_with_eta(line_id: str, dest_lat: float, dest_lng: float) -> 
                         departure_time=departure_time_for_eta
                     )
                     if eta_info:
-                        print("eta_info: ", eta_info)
                         eta_seconds = eta_info.get("bus", False)
                         if not eta_seconds :
                             eta_seconds = eta_info.get("total_travel_time_seconds")

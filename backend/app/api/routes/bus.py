@@ -178,7 +178,8 @@ def get_bus_distance(
 def get_bus_line_status(
     line_id: str = Path(..., description="ID da linha de ônibus a ser consultada", examples=["107", "457"]),
     dest_lat: float = Query(..., description="Latitude do ponto de destino do usuário", examples=[-22.910728]),
-    dest_lng: float = Query(..., description="Longitude do ponto de destino do usuário", examples=[-43.227477])
+    dest_lng: float = Query(..., description="Longitude do ponto de destino do usuário", examples=[-43.227477]),
+    ordem_id: Annotated[str | None, Query(..., description="Id do ônibus específico (Opcional)", examples=["A29084"])] = None,
     ):
     """
     Retorna a última posição conhecida e o tempo estimado de chegada (ETA)
@@ -190,7 +191,8 @@ def get_bus_line_status(
         bus_statuses = get_line_status_with_eta(
             line_id=line_id,
             dest_lat=dest_lat,
-            dest_lng=dest_lng
+            dest_lng=dest_lng,
+            ordem_id = ordem_id
         )
         # Se o serviço retornar lista vazia porque a linha não existe
         # ou não tem ônibus, isso é um sucesso HTTP (200 OK com lista vazia)
