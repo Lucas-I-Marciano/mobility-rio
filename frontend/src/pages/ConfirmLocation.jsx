@@ -28,8 +28,9 @@ export const ConfirmLocation = () => {
         {/* Content Section */}
         <div className="flex flex-col gap-5 items-center pt-2 px-10 text-center max-w-2xl bg-white shadow-lg rounded-lg mt-2">
           <p className="text-gray-600">
-            Clique no mapa para que possamos encontrar e exibir sua localização
-            atual.
+            Clique uma vez no mapa para tentarmos encontrar sua localização
+            atual. Se necessário, clique novamente no local exato que deseja
+            usar como referência.
           </p>
 
           <div className="h-96 rounded-lg overflow-hidden shadow-md">
