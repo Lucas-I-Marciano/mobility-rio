@@ -146,7 +146,6 @@ export const BusTable = ({
               <th className="px-2 py-2 border-b text-left">Vel.</th>
               <th className="px-2 py-2 border-b text-left">Aprox.?</th>
               <th className="px-2 py-2 border-b text-left">Dist.(km)</th>
-              <th className="px-2 py-2 border-b text-left">Últ. Atual.</th>
               <th className="px-2 py-2 border-b text-left">ETA Aprox.</th>
             </tr>
           </thead>
@@ -178,9 +177,6 @@ export const BusTable = ({
                   {/* --- Nova Coluna Distance --- */}
                   <td className="px-2 py-2 border-b">
                     {bus.distance_km?.toFixed(1)}
-                  </td>
-                  <td className="px-2 py-2 border-b">
-                    {formatTimestamp(bus.datahora_ultima)}
                   </td>
                   <td className="px-2 py-2 border-b">
                     {/* --- Lógica Condicional do ETA --- */}
