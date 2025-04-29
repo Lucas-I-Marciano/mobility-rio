@@ -1,20 +1,10 @@
-import React, { useState } from "react"; // Removido useLocation de context se não usado direto aqui
+import React, { useEffect, useState } from "react"; // Removido useLocation de context se não usado direto aqui
 import { MapBusStop } from "../components/MapBusStop";
 import { useLocation as useReactRouterLocation } from "react-router";
 import { AlertForm } from "../components/AlertForm"; // Importa o novo formulário
 import { useLocation } from "../context/location"; // Para pegar busStopLocation
 import { BusTable } from "../components/BusTable";
-
-const mockData = [
-  { "ordem": "A72176", "latitude": "-22,95323", "longitude": "-43,18937", "datahora": "1706553587000", "velocidade": "9", "linha": "410", "distancia": 50, "approaching": true },
-  { "ordem": "A72028", "latitude": "-22,93798", "longitude": "-43,19041", "datahora": "1706553584000", "velocidade": "16", "linha": "117", "distancia": 50, "approaching": false },
-  { "ordem": "A72056", "latitude": "-22,92861", "longitude": "-43,37332", "datahora": "1706553581000", "velocidade": "14", "linha": "691", "distancia": 50, "approaching": true },
-  { "ordem": "A72149", "latitude": "-22,93106", "longitude": "-43,17814", "datahora": "1706553589000", "velocidade": "0", "linha": "507", "distancia": 50, "approaching": false },
-  { "ordem": "A72048", "latitude": "-22,90587", "longitude": "-43,19056", "datahora": "1706553587000", "velocidade": "3", "linha": "007", "distancia": 50, "approaching": true },
-  { "ordem": "A72002", "latitude": "-22,93995", "longitude": "-43,20013", "datahora": "1706553586000", "velocidade": "7", "linha": "422", "distancia": 50, "approaching": false },
-  { "ordem": "A72150", "latitude": "-22,89012", "longitude": "-43,2923", "datahora": "1706553589000", "velocidade": "1", "linha": "SN422", "distancia": 50, "approaching": true },
-  { "ordem": "C47701", "latitude": "-23,00754", "longitude": "-43,30336", "datahora": "1706553593000", "velocidade": "35", "linha": "863", "distancia": 50, "approaching": true }
-];
+import { fetchBusStatusForLine } from "../services/bus";
 
 export const ChoseBusStop = () => {
   const routerLocation = useReactRouterLocation();
@@ -23,7 +13,12 @@ export const ChoseBusStop = () => {
   // Pega o ponto de ônibus selecionado no mapa desta página
   const { busStopLocation } = useLocation();
   const [showForm, setShowForm] = useState(false);
-  const [line, setLine] = useState(null)
+  const [line, setLine] = useState(null);
+  const [selectedLine, setSelectedLine] = useState(null); // Guarda a linha selecionada no form
+
+  const [busStatusData, setBusStatusData] = useState([]); // Guarda os dados da API
+  const [isStatusLoading, setIsStatusLoading] = useState(false);
+  const [statusError, setStatusError] = useState(null);
 
   // Se não houver localização confirmada da página anterior, talvez redirecionar ou mostrar erro
   if (!confirmedUserLocation) {
@@ -40,6 +35,57 @@ export const ChoseBusStop = () => {
     }
   };
 
+  useEffect(() => {
+    console.log(
+      "useEffect [selectedLine, busStopLocation] - Triggered. Current values:",
+      { line: selectedLine, stop: busStopLocation }
+    );
+    // Só busca se tivermos uma linha selecionada E um ponto de destino selecionado
+    if (selectedLine && busStopLocation) {
+      console.log("useEffect - Condition PASSED (line and stop selected).");
+      const getStatus = async () => {
+        console.log("useEffect -> getStatus: Attempting to fetch status...");
+        setIsStatusLoading(true);
+        setStatusError(null);
+        setBusStatusData([]); // Limpa dados anteriores
+        try {
+          console.log(
+            "useEffect -> getStatus: Calling fetchBusStatusForLine with:",
+            {
+              line: selectedLine,
+              lat: busStopLocation.lat,
+              lng: busStopLocation.lng,
+            }
+          );
+          const data = await fetchBusStatusForLine(
+            selectedLine,
+            busStopLocation.lat,
+            busStopLocation.lng
+          );
+          console.log(
+            "useEffect -> getStatus: API call successful, received data:",
+            data
+          ); // Log 5: Ver se a API retornou
+          setBusStatusData(Array.isArray(data) ? data : []);
+        } catch (error) {
+          console.error("useEffect -> getStatus: API call FAILED.", error); // Log 6: Ver o erro
+          setStatusError("Falha ao buscar status dos ônibus.");
+          setBusStatusData([]);
+        } finally {
+          setIsStatusLoading(false);
+        }
+      };
+      getStatus();
+    } else {
+      console.log(
+        "useEffect - Condition FAILED (line or stop missing). Clearing data."
+      );
+      // Se linha ou ponto não estiverem selecionados, limpa os dados da tabela/mapa
+      setBusStatusData([]);
+      setStatusError(null);
+    }
+  }, [selectedLine, busStopLocation]);
+
   return (
     <>
       <div className="flex flex-col min-h-screen items-center bg-gray-100">
@@ -48,7 +94,6 @@ export const ChoseBusStop = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-white">
             Selecione o Ponto de Ônibus
           </h1>
-
         </div>
 
         {/* Content Section */}
@@ -62,13 +107,17 @@ export const ChoseBusStop = () => {
         {/* Layout principal: Mapa à esquerda/em cima, Formulário à direita/embaixo */}
         <div className="flex flex-col lg:flex-row gap-5 p-3 items-start justify-center ">
           <div
-            className={`flex-shrink-0 w-full ${showForm ? "lg:w-1/2" : "lg:w-5/2"} transition-all duration-300 ease-in-out `}
+            className={`flex-shrink-0 w-full ${
+              showForm ? "lg:w-1/2" : "lg:w-5/2"
+            } transition-all duration-300 ease-in-out `}
           >
             {" "}
             {/* Ajusta largura */}
             {/* Passa a localização confirmada para centralizar o mapa */}
-
-            <MapBusStop initialCenter={confirmedUserLocation} moreLocations={line ? mockData : null} />
+            <MapBusStop
+              initialCenter={confirmedUserLocation}
+              busData={busStatusData} // Passa os ônibus para plotar
+            />
             <div className="mt-2 text-center">
               {busStopLocation &&
                 !showForm && ( // Mostra botão só se ponto selecionado E form não visível
@@ -95,20 +144,35 @@ export const ChoseBusStop = () => {
 
           {/* Coluna do Formulário (condicional) */}
           {showForm && busStopLocation && (
-            <div className="w-full lg:w-1/2 lg:max-w-md p-4 border rounded-lg shadow-md bg-white transition-all duration-300 ease-in-out">
-              <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                Detalhes do Alerta
-              </h2>
-              {/* Passa o ponto selecionado para o formulário */}
-              <AlertForm selectedBusStop={busStopLocation} setLine={setLine} />
-
+            <div className="w-full lg:w-1/2 xl:w-1/3 space-y-5">
+              {" "}
+              {/* Adiciona space-y */}
+              {/* Formulário */}
+              <div className="p-4 border rounded-lg shadow-md bg-white">
+                <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                  Detalhes do Alerta
+                </h2>
+                {/* Passa o ponto e a função para setar a linha */}
+                <AlertForm
+                  selectedBusStop={busStopLocation}
+                  setSelectedLineCallback={setSelectedLine} // Passa a função p/ AlertForm atualizar o estado aqui
+                />
+              </div>
+              {/* Tabela de Ônibus (renderiza se linha selecionada ou carregando) */}
             </div>
           )}
-          {line ? <BusTable data={mockData} /> : null}
+          {(selectedLine || isStatusLoading || statusError) && (
+            <div className="p-1 border rounded-lg shadow-md bg-white">
+              <BusTable
+                data={busStatusData}
+                isLoading={isStatusLoading}
+                error={statusError}
+                selectedLine={selectedLine} // Passa a linha selecionada
+              />
+            </div>
+          )}
         </div>
         {/* Tabela de Dados Mocados */}
-
-
       </div>
     </>
   );
