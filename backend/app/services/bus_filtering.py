@@ -2,6 +2,14 @@
 import math
 from typing import List, Dict, Any, Optional # Import Optional
 import logging
+from datetime import datetime, timezone
+from decimal import Decimal # Para lidar com tipos do DB se necessário
+from zoneinfo import ZoneInfo
+
+from app.services.redis import get_latest_bus_data
+from app.services.travel_time import get_travel_time_estimate # Função síncrona agora
+from app.schemas.travel_mode import TravelMode
+from app.schemas.bus_response import BusStatus # Importa o modelo de resposta
 
 from app.utils.coordinates_distance import haversine
 
@@ -124,3 +132,103 @@ def add_distance_to_buses(
             logger.warning(f"Missing or invalid coordinate types for bus {bus_ordem}. Lat: {type(bus_lat_str)}, Lng: {type(bus_lng_str)}")
 
     return buses_with_distance
+
+def get_latest_bus_records(bus_list: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    """
+    Processa uma lista de registros de ônibus e retorna um dicionário
+    contendo apenas o registro mais recente para cada 'ordem'.
+    """
+    latest_records = {}
+    for bus in bus_list:
+        if not isinstance(bus, dict): continue
+        ordem = bus.get("ordem")
+        # Usa datahoraservidor para desempate, ou datahora se preferir/confiar mais
+        # Converte para inteiro para comparação segura
+        timestamp_str = bus.get("datahoraservidor") or bus.get("datahora", "0")
+        try:
+            timestamp = int(timestamp_str)
+        except (ValueError, TypeError):
+            timestamp = 0 # Trata como antigo se timestamp inválido
+
+        if ordem:
+            current_latest_timestamp = int(latest_records.get(ordem, {}).get("datahoraservidor") or latest_records.get(ordem, {}).get("datahora", "0"))
+            if timestamp >= current_latest_timestamp: # Pega o mais recente (ou igual)
+                 latest_records[ordem] = bus
+    return latest_records
+
+
+def get_line_status_with_eta(line_id: str, dest_lat: float, dest_lng: float) -> List[BusStatus]:
+    """
+    Obtém o status mais recente dos ônibus de uma linha e calcula o ETA para um destino.
+    """
+    logger.info(f"Buscando status para linha {line_id} com destino ({dest_lat}, {dest_lng})")
+
+    # 1. Buscar todos os dados recentes
+    # Tratar exceções que get_latest_bus_data pode levantar (DataNotFound, etc)
+    full_bus_list = get_latest_bus_data()
+    if not full_bus_list:
+        return [] # Retorna lista vazia se não há dados base
+
+    # 2. Filtrar pela linha desejada
+    buses_on_line = [
+        bus for bus in full_bus_list
+        if isinstance(bus, dict) and str(bus.get("linha")) == str(line_id)
+    ]
+    if not buses_on_line:
+        logger.info(f"Nenhum ônibus encontrado para a linha {line_id} nos dados recentes.")
+        return []
+
+    # 3. Obter o registro mais recente para cada ônibus único na linha
+    latest_bus_map = get_latest_bus_records(buses_on_line)
+    logger.info(f"Encontrados {len(latest_bus_map)} ônibus únicos na linha {line_id}.")
+
+    # 4. Calcular ETA e formatar a saída
+    results: List[BusStatus] = []
+    departure_time_for_eta = datetime.now(ZoneInfo("America/Sao_Paulo")) # Hora atual para ETA
+
+    for ordem, bus_data in latest_bus_map.items():
+        try:
+            # Limpeza e Conversão de Dados
+            lat_str = bus_data.get("latitude", "0").replace(",", ".")
+            lon_str = bus_data.get("longitude", "0").replace(",", ".")
+            spd_str = bus_data.get("velocidade", "0").replace(",", ".")
+            ts_str = bus_data.get("datahora", "0") # Timestamp em milissegundos (string)
+
+            lat = float(lat_str)
+            lon = float(lon_str)
+            speed = float(spd_str)
+            # Converte timestamp de milisegundos para datetime UTC e depois SP
+            ts_utc = datetime.fromtimestamp(int(ts_str) / 1000, tz=timezone.utc)
+            ts_local = ts_utc.astimezone(ZoneInfo("America/Sao_Paulo"))
+
+            # Calcular ETA (chamando a função síncrona)
+            eta_info = get_travel_time_estimate(
+                origin_lat=lat,
+                origin_lng=lon,
+                dest_lat=dest_lat,
+                dest_lng=dest_lng,
+                modal=TravelMode.BUS, # Ou outro default
+                departure_time=departure_time_for_eta
+            )
+            eta_seconds = eta_info.get("total_travel_time_seconds") if eta_info else None
+                
+
+            # Montar objeto de status
+            status = BusStatus(
+                ordem=ordem,
+                latitude=lat,
+                longitude=lon,
+                velocidade=speed,
+                linha=str(bus_data.get("linha", line_id)), # Garante string
+                datahora_ultima=ts_local, # Usa o datetime local formatado
+                eta_seconds=eta_seconds
+            )
+            results.append(status)
+
+        except (ValueError, TypeError, KeyError) as e:
+            logger.warning(f"Erro processando dados para ônibus {ordem}: {e}. Dados: {bus_data}")
+        except Exception as e:
+            logger.exception(f"Erro inesperado processando ônibus {ordem}: {e}")
+
+    logger.info(f"Retornando status para {len(results)} ônibus da linha {line_id}.")
+    return results

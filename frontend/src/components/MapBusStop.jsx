@@ -1,35 +1,74 @@
 import { useState } from "react";
 import {
-    MapContainer,
-    TileLayer,
-    useMap,
-    Marker,
-    Popup,
-    useMapEvents,
+  MapContainer,
+  TileLayer,
+  useMap,
+  Marker,
+  Popup,
+  useMapEvents,
 } from "react-leaflet";
 import { useLocation } from "../context/location";
-import { AddMarker } from "./AddMarker"
+import { AddMarker } from "./AddMarker";
+import customMarker from "../assets/map-marker.png"
 
-export function MapBusStop() {
-    const { userLocation, setUserLocation } = useLocation();
 
-    return (
-        <>
-            <MapContainer
-                className="h-125 w-100"
-                center={[userLocation.lat, userLocation.lng]}
-                zoom={16}
-                scrollWheelZoom={false}
-            >
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={userLocation}>
-                    <Popup>Você está aqui</Popup>
-                </Marker>
-                <AddMarker />
-            </MapContainer>
-        </>
-    );
+export function MapBusStop({ initialCenter, moreLocations }) {
+  // Remove userLocation do context daqui se não for usar o marcador azul
+  // const { userLocation } = useLocation();
+
+  // Usa initialCenter vindo das props para centralizar
+  const centerCoords = initialCenter
+    ? [initialCenter.lat, initialCenter.lng]
+    : [-22.9068, -43.1729]; // Fallback para Rio
+
+
+  const busIcon = new L.Icon({
+    iconUrl: customMarker, // Substitua pelo caminho do ícone de ônibus
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+  });
+
+
+  return (
+    <div className="h-[60vh] md:h-[70vh] w-full border rounded overflow-hidden shadow">
+      {" "}
+      {/* Estilo e Tamanho Corrigidos */}
+      <MapContainer
+        style={{ height: "100%", width: "100%" }}
+        center={centerCoords} // Usa as coordenadas recebidas
+        zoom={16} // Começa com mais zoom
+        scrollWheelZoom={true}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {/* Marcador Opcional para a localização confirmada do usuário (prop initialCenter) */}
+        {initialCenter && (
+          <Marker position={centerCoords} /* icon={algumIconeDiferente} */>
+            <Popup>Sua localização confirmada</Popup>
+          </Marker>
+        )}
+        {/* Remove o marcador antigo baseado no userLocation do contexto */}
+        {/* <Marker position={userLocation}><Popup>Você está aqui</Popup></Marker> */}
+        <AddMarker />{" "}
+
+        {moreLocations ? moreLocations.map((bus, index) => (
+          <Marker
+            key={index}
+            position={[parseFloat(bus.latitude.replace(',', '.')), parseFloat(bus.longitude.replace(',', '.'))]}
+            icon={busIcon}
+          >
+            <Popup>
+              <div>
+                <p><strong>Ordem:</strong> {bus.ordem}</p>
+              </div>
+            </Popup>
+          </Marker>
+        )) : null}
+
+        {/* Deixa AddMarker cuidar do marcador do ponto clicado */}
+      </MapContainer>
+    </div>
+  );
 }

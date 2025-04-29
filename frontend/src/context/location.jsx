@@ -9,9 +9,22 @@ export const useLocation = () => {
 export const LocationProvider = ({ children }) => {
   const [userLocation, setUserLocation] = useState(null);
   const [busStopLocation, setBusStopLocation] = useState(null);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false); // Estado de Loading
+  const [locationError, setLocationError] = useState(null); // Estado de Erro
 
   return (
-    <LocationContext.Provider value={{ userLocation, setUserLocation, busStopLocation, setBusStopLocation }}>
+    <LocationContext.Provider
+      value={{
+        userLocation,
+        setUserLocation,
+        busStopLocation,
+        setBusStopLocation,
+        isLoadingLocation,
+        setIsLoadingLocation, // Compartilha loading/error
+        locationError,
+        setLocationError,
+      }}
+    >
       {children}
     </LocationContext.Provider>
   );

@@ -9,11 +9,11 @@ from app.schemas.travel_mode import TravelMode
 # from app.db import SessionLocal # Ou sua forma de obter uma session
 from app.db import get_session, Session, engine
 from app.db.user_alerts import UserAlert # Seu modelo de alerta do DB
-from sqlmodel import select # Se usar SQLModel
+from sqlmodel import select, cast, Date # Se usar SQLModel
 # -----------------------------------------------------------------------------
 from app.core.redis import redis_client # Cliente Redis para cooldown
 
-from datetime import datetime, timezone, time
+from datetime import datetime, timezone, time, date
 from zoneinfo import ZoneInfo
 import logging
 
@@ -25,8 +25,10 @@ def check_bus_alerts(): # Async pois chama get_travel_time_estimate
     session = None # Inicializa session
     try:
         now = datetime.now(ZoneInfo("America/Sao_Paulo"))
+        today_date = now.date()
         current_time_of_day = now.time()
         logger.info(f"Hora atual para verificação: {current_time_of_day}")
+        logger.info(f"Data atual para verificação: {today_date}")
 
         # --- 1. Buscar Alertas Ativos na Janela de Tempo ---
         active_alerts = []
@@ -35,7 +37,8 @@ def check_bus_alerts(): # Async pois chama get_travel_time_estimate
             statement = select(UserAlert).where(
                 UserAlert.alert_active == True,
                 UserAlert.time_window_start <= current_time_of_day,
-                UserAlert.time_window_end >= current_time_of_day
+                UserAlert.time_window_end >= current_time_of_day,
+                cast(UserAlert.start_alert_iso, Date) <= today_date
             )
             results = session.exec(statement)
             active_alerts = results.all()
@@ -137,7 +140,17 @@ def check_bus_alerts(): # Async pois chama get_travel_time_estimate
                             logger.info(f"ALERTA! Bus {bus_ordem} para alert {alert.id} ({alert.user_email}) está a {eta_seconds}s.")
                             # --- 3i. Enviar Notificação ---
                             # Chame sua função de envio de email aqui
-                            send_notification_email(email=alert.user_email, subject=f"Linha {alert.bus_line} em {eta_seconds/60} minutos", body=f"Ônibus{bus_ordem} da linha {alert.bus_line} chegará no ponto cadastrado em {eta_seconds/60} minutos" )
+                            html_content = f"""
+                            <!DOCTYPE html>
+                            <html>
+                            <body>
+                                <h1>Ônibus chegando</h1>
+                                <p>Ônibus{bus_ordem} da linha {alert.bus_line} chegará no ponto cadastrado em {eta_seconds/60} minutos</p>
+                                <p>Pode se direcionar ao ponto de ônibus.</p>
+                            </body>
+                            </html>
+                            """
+                            send_notification_email(recipient_email=alert.user_email, email_subject=f"Linha {alert.bus_line} em {eta_seconds/60} minutos", body_plain_text=f"Ônibus{bus_ordem} da linha {alert.bus_line} chegará no ponto cadastrado em {eta_seconds/60} minutos", body_html_content=html_content)
 
                             # --- 3j. Marcar Cooldown ---
                             if redis_client:
