@@ -117,6 +117,7 @@ export const ChoseBusStop = () => {
             <MapBusStop
               initialCenter={confirmedUserLocation}
               busData={busStatusData} // Passa os ônibus para plotar
+              selectedBusStopLocation={busStopLocation}
             />
             <div className="mt-2 text-center">
               {busStopLocation &&
