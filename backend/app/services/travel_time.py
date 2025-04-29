@@ -8,7 +8,7 @@ from app.schemas.travel_mode import TravelMode # Assuming Enum is here
 
 logger = logging.getLogger(__name__)
 
-async def get_travel_time_estimate(
+def get_travel_time_estimate(
     origin_lat: float,
     origin_lng: float,
     dest_lat: float,
@@ -89,9 +89,9 @@ async def get_travel_time_estimate(
     # logger.debug(f"Request Body: {request_body}") # Log body only if needed for debug
 
     try:
-        async with httpx.Client() as client:
+        with httpx.Client() as client:
             # Use POST, passing headers and json body
-            response = await client.post(api_url, headers=headers, json=request_body, timeout=30)
+            response = client.post(api_url, headers=headers, json=request_body, timeout=30)
             response.raise_for_status() # Check for HTTP errors
 
             results = response.json()
