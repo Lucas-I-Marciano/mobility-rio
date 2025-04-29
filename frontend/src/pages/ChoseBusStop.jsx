@@ -145,8 +145,6 @@ export const ChoseBusStop = () => {
           {/* Coluna do Formulário (condicional) */}
           {showForm && busStopLocation && (
             <div className="w-full lg:w-1/2 xl:w-1/3 space-y-5">
-              {" "}
-              {/* Adiciona space-y */}
               {/* Formulário */}
               <div className="p-4 border rounded-lg shadow-md bg-white">
                 <h2 className="text-lg font-semibold text-gray-700 mb-4">
@@ -167,7 +165,8 @@ export const ChoseBusStop = () => {
                 data={busStatusData}
                 isLoading={isStatusLoading}
                 error={statusError}
-                selectedLine={selectedLine} // Passa a linha selecionada
+                selectedLine={selectedLine}
+                destinationCoords={busStopLocation} // <<< Passa as coords do ponto
               />
             </div>
           )}
