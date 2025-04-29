@@ -7,7 +7,7 @@ import logging
 
 from app.core.redis import redis_client
 from app.services.redis import get_latest_bus_data
-from app.services.bus_filtering import filter_and_paginate_buses, add_distance_to_buses
+from app.services.bus_filtering import filter_and_paginate_buses, add_distance_to_buses, get_line_status_with_eta
 from app.core.exceptions import (
     RedisServiceUnavailableError,
     DataNotFoundError,
@@ -16,6 +16,7 @@ from app.core.exceptions import (
     ServiceError 
 )
 from app.utils.bus_record import process_vehicle_data, analyze_vehicle_movement, analyze_vehicle_movement_distance
+from app.schemas.bus_response import BusStatus
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/bus")
@@ -172,3 +173,41 @@ def get_bus_distance(
     except Exception as e:
         logger.exception(f"Unexpected error in /test/distance_calc route: {e}")
         raise HTTPException(status_code=500, detail="Erro interno inesperado no servidor de teste.")
+    
+@router.get(
+    "/lines/{line_id}/status", # Usa path parameter para linha
+    response_model=List[BusStatus], # Retorna lista do modelo
+    summary="Obtém o status atualizado dos ônibus de uma linha com ETA"
+)
+def get_bus_line_status(
+    line_id: str = Path(..., description="ID da linha de ônibus a ser consultada", examples=["107", "457"]),
+    dest_lat: float = Query(..., description="Latitude do ponto de destino do usuário", examples=[-22.910728]),
+    dest_lng: float = Query(..., description="Longitude do ponto de destino do usuário", examples=[-43.227477])
+):
+    """
+    Retorna a última posição conhecida e o tempo estimado de chegada (ETA)
+    para cada ônibus ativo na linha especificada, em relação às coordenadas
+    de destino fornecidas.
+    """
+    logger.info(f"Requisição para status da linha {line_id} / Destino ({dest_lat}, {dest_lng})")
+    try:
+        bus_statuses = get_line_status_with_eta(
+            line_id=line_id,
+            dest_lat=dest_lat,
+            dest_lng=dest_lng
+        )
+        # Se o serviço retornar lista vazia porque a linha não existe
+        # ou não tem ônibus, isso é um sucesso HTTP (200 OK com lista vazia)
+        # O erro 404 seria apenas se o dado base no Redis não existisse.
+        return bus_statuses
+
+    except DataNotFoundError as e:
+         # Se get_latest_bus_data levantar erro por chave não existir
+         logger.warning(f"Data not found for line status query: {e}")
+         raise HTTPException(status_code=404, detail="Dados base de ônibus não disponíveis no momento.")
+    except RedisServiceUnavailableError as e:
+        logger.error(f"Redis unavailable for line status query: {e}")
+        raise HTTPException(status_code=503, detail="Serviço de cache indisponível.")
+    except Exception as e:
+        logger.exception(f"Erro inesperado ao buscar status da linha {line_id}: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno ao processar a solicitação.")
