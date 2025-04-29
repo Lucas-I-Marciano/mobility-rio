@@ -1,7 +1,6 @@
 from app.core.celery_config import celery_app
 from app.services.redis import get_latest_bus_data
-from app.services.bus_filtering import filter_and_paginate_buses, add_distance_to_buses
-from app.utils.bus_record import analyze_vehicle_movement_distance, analyze_vehicle_proximity # Supondo que exista
+from app.services.bus_filtering import filter_and_paginate_buses, add_distance_to_buses, analyze_vehicle_proximity
 from app.services.travel_time import get_travel_time_estimate
 from app.services.notification import send_notification_email # Supondo que exista
 from app.schemas.travel_mode import TravelMode
