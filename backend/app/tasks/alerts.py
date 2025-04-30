@@ -2,7 +2,7 @@ from app.core.celery_config import celery_app
 from app.services.redis import get_latest_bus_data
 from app.services.bus_filtering import filter_and_paginate_buses, add_distance_to_buses, analyze_vehicle_proximity
 from app.services.travel_time import get_travel_time_estimate
-from app.services.notification import send_notification_email # Supondo que exista
+from app.services.notification import send_notification_email, EMAIL_SEND_ALERT_PLAIN, EMAIL_SEND_ALERT_HTML
 from app.schemas.travel_mode import TravelMode
 # --- Acesso ao DB (Exemplo - ajuste para sua configuração SQLModel/SQLAlchemy) ---
 # from app.db import SessionLocal # Ou sua forma de obter uma session
@@ -138,18 +138,10 @@ def check_bus_alerts(): # Async pois chama get_travel_time_estimate
                         if eta_seconds <= 600:
                             logger.info(f"ALERTA! Bus {bus_ordem} para alert {alert.id} ({alert.user_email}) está a {eta_seconds}s.")
                             # --- 3i. Enviar Notificação ---
-                            # Chame sua função de envio de email aqui
-                            html_content = f"""
-                            <!DOCTYPE html>
-                            <html>
-                            <body>
-                                <h1>Ônibus chegando</h1>
-                                <p>Ônibus{bus_ordem} da linha {alert.bus_line} chegará no ponto cadastrado em {eta_seconds/60} minutos</p>
-                                <p>Pode se direcionar ao ponto de ônibus.</p>
-                            </body>
-                            </html>
-                            """
-                            send_notification_email(recipient_email=alert.user_email, email_subject=f"Linha {alert.bus_line} em {eta_seconds/60} minutos", body_plain_text=f"Ônibus{bus_ordem} da linha {alert.bus_line} chegará no ponto cadastrado em {eta_seconds/60} minutos", body_html_content=html_content)
+                            html_content = EMAIL_SEND_ALERT_HTML.format(bus_ordem = bus_ordem, bus_line=alert.bus_line, time=int(round(eta_seconds/60, 0)))
+                            plain_content = EMAIL_SEND_ALERT_PLAIN.format(bus_ordem = bus_ordem, bus_line=alert.bus_line, time=int(round(eta_seconds/60, 0)))
+                            email_subject = f"Linha {alert.bus_line} em {eta_seconds/60} minutos"
+                            send_notification_email(recipient_email=alert.user_email, email_subject=email_subject, body_plain_text=plain_content, body_html_content=html_content)
 
                             # --- 3j. Marcar Cooldown ---
                             if redis_client:
