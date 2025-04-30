@@ -963,8 +963,8 @@ for register_A50217 in dist_A50217:
 for register_C50206 in dist_C50206:
     assess_C50206.append({register_C50206["datahora"] : register_C50206["distance_km"]})
     
-ordered_A50217 = sorted(assess_A50217, key=lambda x: list(x.values())[0])
-ordered_C50206 = sorted(assess_C50206, key=lambda x: list(x.values())[0])
+ordered_A50217 = sorted(assess_A50217, key=lambda x: list(x.keys())[0])
+ordered_C50206 = sorted(assess_C50206, key=lambda x: list(x.keys())[0])
 
 print("A50217")
 for i in ordered_A50217:
