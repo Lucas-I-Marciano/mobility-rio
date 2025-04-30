@@ -1,7 +1,8 @@
 from enum import Enum
 
 class EndpointTags(str, Enum):
-    NOTIFICATION ="Notification"
-    BUS = "Bus"
+    NOTIFICATION ="Notifications"
+    BUS = "Bus Status"
     ALERTS = "Alerts"
-    DEFAULT = ".Welcome."
+    DEFAULT = "Welcome"
+    ETA_CALCULATION = "ETA Calculation"
