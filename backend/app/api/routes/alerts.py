@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Body, Query
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, Any 
 from sqlmodel import Session, select
 import datetime
 
-from app.schemas.user_alerts import UserAlertCreate, UserAlertRead, UserAlertUpdate
+from app.schemas.user_alerts import UserAlertCreate, UserAlertRead, UserAlertUpdate, DeleteAlertsRequest
 from app.db.user_alerts import UserAlert
 from app.db import get_session
 from app.schemas.endpoint_tags import EndpointTags
@@ -151,7 +151,7 @@ def update_user_alert(
 
 # --- DELETE (NOVO) ---
 @router.delete("/{alert_id}", status_code=200) # Retorna 200 OK com mensagem ou 204 No Content
-def delete_user_alert(
+def delete_single_user_alert(
     *,
     session: session_dependency,
     alert_id: int
@@ -180,3 +180,64 @@ def delete_user_alert(
         session.rollback()
         logger.exception(f"Erro no banco de dados ao deletar alerta ID {alert_id}: {e}")
         raise HTTPException(status_code=500, detail="Erro interno ao deletar o alerta.")
+    
+@router.delete("/", status_code=200)
+def delete_multiple_user_alerts(
+    *,
+    session: session_dependency,
+    delete_request: DeleteAlertsRequest # Recebe o corpo da requisição
+) -> dict[str, Any]: # Retorna um dicionário com detalhes
+    """
+    Deleta múltiplos alertas existentes com base em uma lista de IDs fornecida.
+    """
+    alert_ids_to_delete = delete_request.alert_ids
+    logger.info(f"Recebida requisição para deletar alertas com IDs: {alert_ids_to_delete}")
+
+    if not alert_ids_to_delete:
+        logger.warning("Requisição de deleção em lote recebida com lista de IDs vazia.")
+        raise HTTPException(
+            status_code=400,
+            detail="A lista de IDs para deletar não pode ser vazia."
+        )
+
+    # Busca todos os alertas que correspondem aos IDs fornecidos
+    statement = select(UserAlert).where(UserAlert.id.in_(alert_ids_to_delete))
+    alerts_found = session.exec(statement).all()
+
+    if not alerts_found:
+        logger.warning(f"Nenhum alerta encontrado para os IDs fornecidos: {alert_ids_to_delete}")
+        raise HTTPException(
+            status_code=404,
+            detail="Nenhum dos alertas especificados foi encontrado."
+        )
+
+
+    deleted_count = 0
+    not_found_ids = list(set(alert_ids_to_delete) - set(alert.id for alert in alerts_found))
+    deleted_ids = []
+
+    try:
+        for alert in alerts_found:
+            session.delete(alert)
+            deleted_ids.append(alert.id) # type: ignore
+            deleted_count += 1
+
+        session.commit()
+        logger.info(f"{deleted_count} alertas deletados com sucesso (IDs: {deleted_ids}).")
+        if not_found_ids:
+             logger.warning(f"IDs de alerta fornecidos mas não encontrados: {not_found_ids}")
+
+        # Retorna um resumo da operação
+        return {
+            "message": f"{deleted_count} alerta(s) deletado(s) com sucesso.",
+            "deleted_ids": deleted_ids,
+            "not_found_ids": not_found_ids
+        }
+
+    except Exception as e:
+        session.rollback()
+        logger.exception(f"Erro no banco de dados ao deletar alertas em lote (IDs: {alert_ids_to_delete}): {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Erro interno ao deletar os alertas."
+        )
