@@ -87,7 +87,7 @@ def check_bus_alerts(): # Async pois chama get_travel_time_estimate
             # --- 3d. Filtrar Candidatos (< 5km e Approaching) ---
             candidate_buses_info = []
             for bus_info in proximity_results:
-                if bus_info.get("approaching") is True and bus_info.get("distance", float('inf')) < 0.2: # Ou 5.0 km
+                if bus_info.get("approaching") is True and bus_info.get("distance", float('inf')) < 5:
                     # Encontrar dados originais para lat/lon se necessário para ETA
                     original_bus = next((b for b in buses_with_distance if b.get("ordem") == bus_info["ordem"]), None)
                     if original_bus:
