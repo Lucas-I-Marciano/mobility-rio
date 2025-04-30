@@ -56,3 +56,6 @@ class UserAlertUpdate(SQLModel):
     time_window_start: datetime | None = None
     time_window_end: datetime | None = None
     alert_active: bool | None = None
+
+class DeleteAlertsRequest(SQLModel): # Ou BaseModel
+    alert_ids: list[int]
