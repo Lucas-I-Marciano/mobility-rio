@@ -174,7 +174,8 @@ def get_bus_distance(
 @router.get(
     "/lines/{line_id}/status", # Usa path parameter para linha
     response_model=List[BusStatus], # Retorna lista do modelo
-    summary="Obtém o status atualizado dos ônibus de uma linha com ETA"
+    summary="Obtém o status atualizado dos ônibus de uma linha com ETA",
+    tags=[EndpointTags.ETA_CALCULATION]
     )
 def get_bus_line_status(
     line_id: str = Path(..., description="ID da linha de ônibus a ser consultada", examples=["107", "457"]),
