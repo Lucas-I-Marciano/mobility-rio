@@ -8,9 +8,10 @@ from app.services.notification import (
     EMAIL_CONFIRMATION_BODY_HTML
 )
 from app.schemas.notification import ConfirmationEmailRequest # Modelo de requisição
+from app.schemas.endpoint_tags import EndpointTags
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/notifications", tags=["Notifications"])
+router = APIRouter(prefix="/notifications", tags=[EndpointTags.NOTIFICATION])
 
 @router.post("/send-confirmation", status_code=202) # 202 Accepted é bom para tarefas de background
 async def send_alert_confirmation_email(

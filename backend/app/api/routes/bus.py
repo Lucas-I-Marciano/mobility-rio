@@ -16,9 +16,10 @@ from app.core.exceptions import (
     ServiceError 
 )
 from app.schemas.bus_response import BusStatus
+from app.schemas.endpoint_tags import EndpointTags
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/bus")
+router = APIRouter(prefix="/bus", tags=[EndpointTags.BUS])
 
 @router.post("/filter")
 def filter_bus(

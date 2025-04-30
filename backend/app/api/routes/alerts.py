@@ -6,8 +6,9 @@ import datetime
 from app.schemas.user_alerts import UserAlertRead, UserAlertCreate
 from app.db.user_alerts import UserAlert
 from app.db import get_session
+from app.schemas.endpoint_tags import EndpointTags
 
-router = APIRouter(prefix="/alerts")
+router = APIRouter(prefix="/alerts", tags=[EndpointTags.ALERTS])
 
 session_dependency = Annotated[Session, Depends(get_session)] # Help on database management
 

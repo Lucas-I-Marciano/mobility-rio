@@ -6,12 +6,17 @@ import logging # Para logar erros
 
 from app.services.travel_time import get_travel_time_estimate
 from app.schemas.travel_mode import TravelMode
+from app.schemas.endpoint_tags import EndpointTags
 
 # Configuração básica de logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/map")
+router = APIRouter(prefix="/map", tags=[EndpointTags.DEFAULT])
+
+@router.get("/", tags=[EndpointTags.DEFAULT])
+async def root():
+    return {"message" : "Welcome!"}
 
 # 1. Defina um modelo Pydantic para o corpo da requisição --> Botar isso no schemas depois
 class ETARequest(BaseModel):
