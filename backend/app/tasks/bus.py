@@ -14,7 +14,7 @@ def get_bus():
     
     sao_paulo_tz = ZoneInfo("America/Sao_Paulo")
     now = datetime.now(sao_paulo_tz)
-    some_minutes_ago = now - timedelta(minutes=5)
+    some_minutes_ago = now - timedelta(minutes=20)
     some_minutes = now + timedelta(minutes=5)
 
 
