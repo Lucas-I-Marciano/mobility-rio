@@ -1,0 +1,416 @@
+{
+  "results": [
+    {
+      "search_id": "Route",
+      "locations": [
+        {
+          "id": "-23.6046125,-46.6936505",
+          "properties": [
+            {
+              "route": {
+                "departure_time": "2025-04-11T22:03:23-03:00",
+                "arrival_time": "2025-04-11T22:56:21-03:00",
+                "parts": [
+                  {
+                    "id": 0,
+                    "type": "start_end",
+                    "mode": "walk",
+                    "directions": "Start your journey 27 meters south",
+                    "distance": 27,
+                    "travel_time": 19,
+                    "coords": [
+                      { "lat": -23.5351223, "lng": -46.635393 },
+                      { "lat": -23.535370699999966, "lng": -46.635436399999925 }
+                    ],
+                    "direction": "south"
+                  },
+                  {
+                    "id": 1,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Walk 77 meters",
+                    "distance": 77,
+                    "travel_time": 66,
+                    "coords": [
+                      {
+                        "lat": -23.535370699999966,
+                        "lng": -46.635436399999925
+                      },
+                      { "lat": -23.53497840000004, "lng": -46.635321100000006 },
+                      { "lat": -23.53486800000004, "lng": -46.63528970000001 },
+                      { "lat": -23.534806699999965, "lng": -46.63527249999993 },
+                      { "lat": -23.53478810000004, "lng": -46.63526720000001 },
+                      {
+                        "lat": -23.534794400000038,
+                        "lng": -46.635226200000005
+                      },
+                      { "lat": -23.534735099999946, "lng": -46.63521300000005 }
+                    ]
+                  },
+                  {
+                    "id": 2,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Turn right onto Praça da Luz and walk 161 meters",
+                    "distance": 161,
+                    "travel_time": 127,
+                    "coords": [
+                      { "lat": -23.534735099999946, "lng": -46.63521300000005 },
+                      {
+                        "lat": -23.535004899999976,
+                        "lng": -46.634155100000065
+                      },
+                      { "lat": -23.535026400000078, "lng": -46.63407749999991 },
+                      {
+                        "lat": -23.535081200000036,
+                        "lng": -46.633879399999984
+                      },
+                      { "lat": -23.535109000000034, "lng": -46.63383789999998 },
+                      {
+                        "lat": -23.535142600000032,
+                        "lng": -46.633811999999985
+                      },
+                      { "lat": -23.535164800000032, "lng": -46.6338014000001 },
+                      { "lat": -23.53519180000003, "lng": -46.6337938000001 },
+                      { "lat": -23.535246599999933, "lng": -46.63379019999999 }
+                    ],
+                    "road": "Praça da Luz",
+                    "turn": "right"
+                  },
+                  {
+                    "id": 3,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Turn right onto Rua Brigadeiro Tobias and walk 96 meters",
+                    "distance": 96,
+                    "travel_time": 101,
+                    "coords": [
+                      { "lat": -23.535246599999933, "lng": -46.63379019999999 },
+                      { "lat": -23.53528930000006, "lng": -46.633803899999755 },
+                      { "lat": -23.535666199999934, "lng": -46.63392089999999 },
+                      { "lat": -23.53576630000009, "lng": -46.63394849999989 },
+                      { "lat": -23.53599519999995, "lng": -46.63400110000025 },
+                      { "lat": -23.536105399999954, "lng": -46.63402650000006 }
+                    ],
+                    "road": "Rua Brigadeiro Tobias",
+                    "turn": "right"
+                  },
+                  {
+                    "id": 4,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Turn right  and walk 75 meters",
+                    "distance": 75,
+                    "travel_time": 57,
+                    "coords": [
+                      { "lat": -23.536105399999954, "lng": -46.63402650000006 },
+                      {
+                        "lat": -23.536082700000016,
+                        "lng": -46.634084400000305
+                      },
+                      { "lat": -23.536074700000057, "lng": -46.63411319999994 },
+                      {
+                        "lat": -23.536471500000008,
+                        "lng": -46.634236999999835
+                      },
+                      { "lat": -23.536618900000075, "lng": -46.63428110000013 },
+                      { "lat": -23.536637400000075, "lng": -46.63428660000013 },
+                      { "lat": -23.53662800000008, "lng": -46.63432139999988 }
+                    ],
+                    "turn": "right"
+                  },
+                  {
+                    "id": 5,
+                    "type": "basic",
+                    "mode": "walk",
+                    "directions": "",
+                    "distance": 18,
+                    "travel_time": 27,
+                    "coords": [
+                      { "lat": -23.53662800000008, "lng": -46.63432139999988 },
+                      { "lat": -23.536598, "lng": -46.634502 }
+                    ]
+                  },
+                  {
+                    "id": 6,
+                    "type": "public_transport",
+                    "mode": "rail_underground",
+                    "directions": "Take a train (METRÔ L4 / SÃO PAULO - MORUMBI - LUZ (of SPTRANS) line) from 'Luz' (leaves at 22:10) to 'Pinheiros Metrô' (arrives at 22:26) (7 stops)",
+                    "distance": 0,
+                    "travel_time": 980,
+                    "coords": [
+                      { "lat": -23.536598, "lng": -46.634502 },
+                      { "lat": -23.544215, "lng": -46.642461 },
+                      { "lat": -23.549031, "lng": -46.652303 },
+                      { "lat": -23.555071, "lng": -46.662131 },
+                      { "lat": -23.560414, "lng": -46.671819 },
+                      { "lat": -23.566103, "lng": -46.684273 },
+                      { "lat": -23.567399, "lng": -46.693451 },
+                      { "lat": -23.56725, "lng": -46.701925 }
+                    ],
+                    "line": "METRÔ L4 / SÃO PAULO - MORUMBI - LUZ (of SPTRANS)",
+                    "departure_station": "Luz",
+                    "arrival_station": "Pinheiros Metrô",
+                    "departs_at": "22:10",
+                    "arrives_at": "22:26",
+                    "num_stops": 7
+                  },
+                  {
+                    "id": 7,
+                    "type": "basic",
+                    "mode": "walk",
+                    "directions": "Leave Pinheiros Metrô",
+                    "distance": 21,
+                    "travel_time": 31,
+                    "coords": [
+                      { "lat": -23.56725, "lng": -46.701925 },
+                      { "lat": -23.56724090000005, "lng": -46.70213990000024 }
+                    ]
+                  },
+                  {
+                    "id": 8,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Walk 55 meters along Passarela de Integração Metrô-CPTM",
+                    "distance": 55,
+                    "travel_time": 40,
+                    "coords": [
+                      { "lat": -23.56724090000005, "lng": -46.70213990000024 },
+                      { "lat": -23.567297500000052, "lng": -46.70268520000024 }
+                    ],
+                    "road": "Passarela de Integração Metrô-CPTM"
+                  },
+                  {
+                    "id": 9,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Continue straight for 28 meters",
+                    "distance": 28,
+                    "travel_time": 21,
+                    "coords": [
+                      { "lat": -23.567297500000052, "lng": -46.70268520000024 },
+                      { "lat": -23.567360600000004, "lng": -46.702958699999904 }
+                    ],
+                    "turn": "straight"
+                  },
+                  {
+                    "id": 10,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Turn right onto Ciclovia do Rio Pinheiros and walk 63 meters",
+                    "distance": 63,
+                    "travel_time": 45,
+                    "coords": [
+                      {
+                        "lat": -23.567360600000004,
+                        "lng": -46.702958699999904
+                      },
+                      { "lat": -23.567112500000068, "lng": -46.70304369999989 },
+                      { "lat": -23.566814299999976, "lng": -46.7031402 }
+                    ],
+                    "road": "Ciclovia do Rio Pinheiros",
+                    "turn": "right"
+                  },
+                  {
+                    "id": 11,
+                    "type": "basic",
+                    "mode": "walk",
+                    "directions": "",
+                    "distance": 21,
+                    "travel_time": 30,
+                    "coords": [
+                      { "lat": -23.566814299999976, "lng": -46.7031402 },
+                      { "lat": -23.566631, "lng": -46.703082 }
+                    ]
+                  },
+                  {
+                    "id": 12,
+                    "type": "public_transport",
+                    "mode": "train",
+                    "directions": "Take a train (CPTM L09 / GRAJAU - OSASCO (of SPTRANS) line) from 'Pinheiros' (leaves at 22:36) to 'Berrini' (arrives at 22:48) (4 stops)",
+                    "distance": 0,
+                    "travel_time": 1133,
+                    "coords": [
+                      { "lat": -23.566631, "lng": -46.703082 },
+                      { "lat": -23.573822, "lng": -46.698634 },
+                      { "lat": -23.585337, "lng": -46.691293 },
+                      { "lat": -23.593185, "lng": -46.692871 },
+                      { "lat": -23.604669, "lng": -46.696825 }
+                    ],
+                    "line": "CPTM L09 / GRAJAU - OSASCO (of SPTRANS)",
+                    "departure_station": "Pinheiros",
+                    "arrival_station": "Berrini",
+                    "departs_at": "22:36",
+                    "arrives_at": "22:48",
+                    "num_stops": 4
+                  },
+                  {
+                    "id": 13,
+                    "type": "basic",
+                    "mode": "walk",
+                    "directions": "Leave Berrini",
+                    "distance": 8,
+                    "travel_time": 12,
+                    "coords": [
+                      { "lat": -23.604669, "lng": -46.696825 },
+                      { "lat": -23.604683499999997, "lng": -46.69674300000004 }
+                    ]
+                  },
+                  {
+                    "id": 14,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Walk 89 meters",
+                    "distance": 89,
+                    "travel_time": 66,
+                    "coords": [
+                      { "lat": -23.604683499999997, "lng": -46.69674300000004 },
+                      { "lat": -23.60469889999992, "lng": -46.696692599999956 },
+                      { "lat": -23.604843300000013, "lng": -46.69620169999992 },
+                      { "lat": -23.604870199999997, "lng": -46.69610980000004 },
+                      { "lat": -23.60475809999995, "lng": -46.69607070000001 },
+                      { "lat": -23.604670199999997, "lng": -46.69604010000004 }
+                    ]
+                  },
+                  {
+                    "id": 15,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Turn right onto Rua Guilherme Barbosa de Melo and walk 137 meters",
+                    "distance": 137,
+                    "travel_time": 108,
+                    "coords": [
+                      { "lat": -23.604670199999997, "lng": -46.69604010000004 },
+                      { "lat": -23.605016900000084, "lng": -46.69490020000004 },
+                      { "lat": -23.605059299999983, "lng": -46.694761199999945 }
+                    ],
+                    "road": "Rua Guilherme Barbosa de Melo",
+                    "turn": "right"
+                  },
+                  {
+                    "id": 16,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Turn right onto Rua Sansão Alves dos Santos and walk 17 meters",
+                    "distance": 17,
+                    "travel_time": 12,
+                    "coords": [
+                      {
+                        "lat": -23.605059299999983,
+                        "lng": -46.694761199999945
+                      },
+                      { "lat": -23.605210200000002, "lng": -46.69480560000006 }
+                    ],
+                    "road": "Rua Sansão Alves dos Santos",
+                    "turn": "right"
+                  },
+                  {
+                    "id": 17,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Turn left onto Praça General Gentil Falcão and walk 171 meters",
+                    "distance": 171,
+                    "travel_time": 143,
+                    "coords": [
+                      { "lat": -23.605210200000002, "lng": -46.69480560000006 },
+                      { "lat": -23.60523609999999, "lng": -46.694778199999945 },
+                      { "lat": -23.605308600000004, "lng": -46.69469919999999 },
+                      { "lat": -23.605454, "lng": -46.69448540000006 },
+                      { "lat": -23.60553039999988, "lng": -46.69435420000009 },
+                      { "lat": -23.605542200000006, "lng": -46.69433399999999 },
+                      { "lat": -23.6056016, "lng": -46.694207000000056 },
+                      { "lat": -23.605642300000007, "lng": -46.69409789999999 },
+                      { "lat": -23.6056877, "lng": -46.69394170000005 },
+                      {
+                        "lat": -23.605713400000006,
+                        "lng": -46.693793599999985
+                      },
+                      {
+                        "lat": -23.605726199999985,
+                        "lng": -46.693660599999944
+                      },
+                      {
+                        "lat": -23.605727600000005,
+                        "lng": -46.693523699999986
+                      },
+                      {
+                        "lat": -23.605724899999984,
+                        "lng": -46.693379699999944
+                      },
+                      {
+                        "lat": -23.605720500000004,
+                        "lng": -46.693311399999985
+                      },
+                      { "lat": -23.605714099999986, "lng": -46.693273399999946 }
+                    ],
+                    "road": "Praça General Gentil Falcão",
+                    "turn": "left"
+                  },
+                  {
+                    "id": 18,
+                    "type": "road",
+                    "mode": "walk",
+                    "directions": "Turn left  and walk 165 meters",
+                    "distance": 165,
+                    "travel_time": 121,
+                    "coords": [
+                      {
+                        "lat": -23.605714099999986,
+                        "lng": -46.693273399999946
+                      },
+                      {
+                        "lat": -23.605557599999877,
+                        "lng": -46.693239500000104
+                      },
+                      {
+                        "lat": -23.605525899999876,
+                        "lng": -46.693232400000106
+                      },
+                      {
+                        "lat": -23.605452899999875,
+                        "lng": -46.693300100000094
+                      },
+                      { "lat": -23.605434699999876, "lng": -46.6933198000001 },
+                      {
+                        "lat": -23.605389099999876,
+                        "lng": -46.693350600000095
+                      },
+                      { "lat": -23.605316099999875, "lng": -46.6933842000001 },
+                      { "lat": -23.605296099999876, "lng": -46.6934129000001 },
+                      { "lat": -23.605283699999877, "lng": -46.69343550000009 },
+                      { "lat": -23.605272799999874, "lng": -46.6934605000001 },
+                      { "lat": -23.605267299999877, "lng": -46.69349020000009 },
+                      { "lat": -23.605260199999876, "lng": -46.69353590000009 },
+                      {
+                        "lat": -23.605258099999876,
+                        "lng": -46.693621300000096
+                      },
+                      { "lat": -23.605294799999875, "lng": -46.6940449000001 },
+                      { "lat": -23.60520239999988, "lng": -46.6937880000001 },
+                      { "lat": -23.605113299999996, "lng": -46.6936023 }
+                    ],
+                    "turn": "left"
+                  },
+                  {
+                    "id": 19,
+                    "type": "start_end",
+                    "mode": "walk",
+                    "directions": "Your destination is 55 meters north",
+                    "distance": 55,
+                    "travel_time": 39,
+                    "coords": [
+                      { "lat": -23.605113299999996, "lng": -46.6936023 },
+                      { "lat": -23.6046125, "lng": -46.6936505 }
+                    ],
+                    "direction": "north"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "unreachable": []
+    }
+  ]
+}
