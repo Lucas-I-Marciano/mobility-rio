@@ -7,7 +7,7 @@ import logging
 
 from app.core.redis import redis_client
 from app.services.redis import get_latest_bus_data
-from app.services.bus_filtering import filter_and_paginate_buses, add_distance_to_buses, get_line_status_with_eta
+from app.services.bus_filtering import filter_and_paginate_buses, add_distance_to_buses, get_line_status_with_eta, group_and_sort_vehicle_data, analyze_vehicle_proximity
 from app.core.exceptions import (
     RedisServiceUnavailableError,
     DataNotFoundError,
@@ -15,11 +15,11 @@ from app.core.exceptions import (
     RedisOperationError,
     ServiceError 
 )
-from app.utils.bus_record import process_vehicle_data, analyze_vehicle_movement, analyze_vehicle_movement_distance
 from app.schemas.bus_response import BusStatus
+from app.schemas.endpoint_tags import EndpointTags
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/bus")
+router = APIRouter(prefix="/bus", tags=[EndpointTags.BUS])
 
 @router.post("/filter")
 def filter_bus(
@@ -151,15 +151,12 @@ def get_bus_distance(
             dest_lat=dest_lat_float,
             dest_lng=dest_lng_float
         )
-
-        processed_data = process_vehicle_data({"results" : results_with_distance})["only_time"]
-        vehicle_movement = analyze_vehicle_movement(processed_data)
         logger.info(f"Calculated distances for {len(results_with_distance)} buses.")
         # Using logger.debug might be better for potentially large output
         logger.debug(f"Results with distance: {results_with_distance}")
 
-        to_return = analyze_vehicle_movement_distance(results_with_distance)
-        return {"results": to_return}
+        results_with_approaching_evaluation = analyze_vehicle_proximity(results_with_distance)
+        return results_with_approaching_evaluation
 
     # --- Handle potential errors from services ---
     except RedisServiceUnavailableError as e:
@@ -177,13 +174,15 @@ def get_bus_distance(
 @router.get(
     "/lines/{line_id}/status", # Usa path parameter para linha
     response_model=List[BusStatus], # Retorna lista do modelo
-    summary="Obtém o status atualizado dos ônibus de uma linha com ETA"
-)
+    summary="Obtém o status atualizado dos ônibus de uma linha com ETA",
+    tags=[EndpointTags.ETA_CALCULATION]
+    )
 def get_bus_line_status(
     line_id: str = Path(..., description="ID da linha de ônibus a ser consultada", examples=["107", "457"]),
     dest_lat: float = Query(..., description="Latitude do ponto de destino do usuário", examples=[-22.910728]),
-    dest_lng: float = Query(..., description="Longitude do ponto de destino do usuário", examples=[-43.227477])
-):
+    dest_lng: float = Query(..., description="Longitude do ponto de destino do usuário", examples=[-43.227477]),
+    ordem_id: Annotated[str | None, Query(..., description="Id do ônibus específico (Opcional)", examples=["A29084"])] = None,
+    ):
     """
     Retorna a última posição conhecida e o tempo estimado de chegada (ETA)
     para cada ônibus ativo na linha especificada, em relação às coordenadas
@@ -194,7 +193,8 @@ def get_bus_line_status(
         bus_statuses = get_line_status_with_eta(
             line_id=line_id,
             dest_lat=dest_lat,
-            dest_lng=dest_lng
+            dest_lng=dest_lng,
+            ordem_id = ordem_id
         )
         # Se o serviço retornar lista vazia porque a linha não existe
         # ou não tem ônibus, isso é um sucesso HTTP (200 OK com lista vazia)

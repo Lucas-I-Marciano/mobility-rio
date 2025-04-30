@@ -9,6 +9,8 @@ class BusStatus(BaseModel):
     velocidade: float
     linha: str | list[str]
     datahora_ultima: datetime 
+    approaching: bool  # Indica se o ônibus está se aproximando
+    distance_km: float | None = None # Distância Haversine calculada
     eta_seconds: int | None = None # Tempo estimado até o ponto do usuário em segundos
 
     class Config:

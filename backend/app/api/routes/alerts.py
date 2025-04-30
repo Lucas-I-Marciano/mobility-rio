@@ -1,20 +1,37 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
-from typing import Annotated
-from sqlmodel import Session
+from fastapi import APIRouter, Depends, HTTPException, Body, Query
+from typing import Annotated, List, Optional, Any 
+from sqlmodel import Session, select
 import datetime
 
-from app.schemas.user_alerts import UserAlertRead, UserAlertCreate
+from app.schemas.user_alerts import UserAlertCreate, UserAlertRead, UserAlertUpdate, DeleteAlertsRequest
 from app.db.user_alerts import UserAlert
 from app.db import get_session
-from app.schemas.travel_mode import TravelMode
+from app.schemas.endpoint_tags import EndpointTags
 
-from app.services.redis import get_latest_bus_data
-from app.core.celery_config import celery_app
-from app.services.bus_filtering import filter_and_paginate_buses, add_distance_to_buses
-from app.utils.bus_record import process_vehicle_data, analyze_vehicle_movement_distance
-from app.services.travel_time import get_travel_time_estimate
+import logging
+from sqlmodel import Session, select # Importe select
 
-router = APIRouter(prefix="/alerts")
+# from app.db import session_dependency # Sua dependência de sessão do db.py
+# Importe a função utilitária de conversão de tempo (se a extraiu) ou a lógica necessária
+# from app.utils.time_conversion import convert_aware_datetime_to_sao_paulo_time
+
+# --- Lógica de conversão (Exemplo se não estiver em utils) ---
+# Precisamos dela para o PATCH. É melhor colocar em um arquivo utils.py
+from datetime import datetime, time
+from zoneinfo import ZoneInfo
+SAO_PAULO_TZ = ZoneInfo("America/Sao_Paulo")
+
+def convert_datetime_to_sao_paulo_time(value: datetime) -> time:
+    if value.tzinfo is None:
+        raise ValueError("Time conversion requires timezone-aware datetime.")
+    try:
+        local_dt = value.astimezone(SAO_PAULO_TZ)
+        return local_dt.time()
+    except Exception as e:
+        raise ValueError(f"Erro ao converter data/hora para fuso de São Paulo: {e}")
+
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/alerts", tags=[EndpointTags.ALERTS])
 
 session_dependency = Annotated[Session, Depends(get_session)] # Help on database management
 
@@ -32,66 +49,195 @@ def create_user_alert(
     session.refresh(db_alert) # Recarrega o objeto para obter id, created_at, updated_at
     return db_alert
 
-@router.get("/user-alerts/{alert_id}", response_model=UserAlertRead)
+@router.get("/{alert_id}", response_model=UserAlertRead)
 def read_user_alert(
     *,
     session: session_dependency,
     alert_id: int
 ):
-    alert = session.get(UserAlert, alert_id)
-    if not alert:
-        raise HTTPException(status_code=404, detail="User Alert not found")
-    return alert
+    """
+    Obtém os detalhes de um alerta específico pelo ID.
+    """
+    logger.info(f"Buscando alerta ID: {alert_id}")
+    db_alert = session.get(UserAlert, alert_id)
+    if not db_alert:
+        logger.warning(f"Alerta ID {alert_id} não encontrado.")
+        raise HTTPException(status_code=404, detail="Alerta não encontrado")
+    return db_alert
 
-@router.post("/teste")
-async def teste(dest_lat_float = -22.984520, dest_lng_float = -43.217640, target_lines: Annotated[list[str], Body()] = ["457"]):
-    full_bus_list = get_latest_bus_data()
-    pagination_result = filter_and_paginate_buses(
-            full_bus_list=full_bus_list,
-            page=1,
-            limit=len(full_bus_list) + 1, # Ensure limit > total items
-            lines=target_lines
-        )
-    buses_for_line = pagination_result.get("items", [])
+@router.get("/", response_model=List[UserAlertRead])
+def list_user_alerts(
+    *,
+    session: session_dependency,
+    user_email: str = Query(..., description="Email do usuário para filtrar os alertas"),
+    offset: int = Query(0, ge=0), # Para paginação
+    limit: int = Query(100, ge=1, le=200), # Limite razoável
+    active_only: bool = Query(True, description="Retornar apenas alertas ativos?")
+):
+    """
+    Lista os alertas de um usuário específico, com opção de filtro e paginação.
+    """
+    logger.info(f"Listando alertas para {user_email} (offset={offset}, limit={limit}, active_only={active_only})")
+    statement = select(UserAlert).where(UserAlert.user_email == user_email)
+    if active_only:
+        statement = statement.where(UserAlert.alert_active == True)
 
-    results_with_distance = add_distance_to_buses(
-            bus_list=buses_for_line,
-            dest_lat=float(dest_lat_float),
-            dest_lng=float(dest_lng_float)
-        )
+    statement = statement.offset(offset).limit(limit) # Aplica paginação
+
+    try:
+        alerts = session.exec(statement).all()
+        logger.info(f"Retornando {len(alerts)} alertas para {user_email}.")
+        return alerts
+    except Exception as e:
+        logger.exception(f"Erro no banco de dados ao listar alertas para {user_email}: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno ao buscar alertas.")
+
+
+# --- UPDATE (NOVO - usando PATCH) ---
+@router.patch("/{alert_id}", response_model=UserAlertRead)
+def update_user_alert(
+    *,
+    session: session_dependency,
+    alert_id: int,
+    alert_update: UserAlertUpdate # Modelo com campos opcionais
+):
+    """
+    Atualiza parcialmente um alerta existente.
+    """
+    logger.info(f"Recebida requisição para atualizar alerta ID: {alert_id}")
+    db_alert = session.get(UserAlert, alert_id)
+    if not db_alert:
+        logger.warning(f"Alerta ID {alert_id} não encontrado para atualização.")
+        raise HTTPException(status_code=404, detail="Alerta não encontrado")
+
+    # Pega os dados que foram enviados na requisição (excluindo os não definidos)
+    update_data = alert_update.model_dump(exclude_unset=True)
+    logger.info(f"Dados para atualização: {update_data}")
+
+    extra_data = {} # Para campos que precisam de conversão (como tempo)
+    for key, value in update_data.items():
+        # --- Tratamento especial para campos de tempo ---
+        if key in ["time_window_start", "time_window_end"] and isinstance(value, datetime):
+             try:
+                 # Converte o datetime (aware) para time (aware no fuso SP)
+                 time_value = convert_datetime_to_sao_paulo_time(value)
+                 setattr(db_alert, key, time_value) # Define o valor convertido
+             except ValueError as e:
+                 raise HTTPException(status_code=422, detail=f"Erro no campo '{key}': {e}")
+        # --- Fim tratamento de tempo ---
+        # --- Tratamento bus_line (se aceita lista na entrada mas salva str) ---
+        elif key == "bus_line" and isinstance(value, list):
+             # Regra de exemplo: salvar apenas a primeira linha da lista
+             if value:
+                  setattr(db_alert, key, str(value[0]))
+             else:
+                  raise HTTPException(status_code=422, detail="Campo 'bus_line' não pode ser uma lista vazia.")
+        # --- Fim tratamento bus_line ---
+        else:
+            # Atualiza outros campos diretamente
+            setattr(db_alert, key, value)
+
+    try:
+        session.add(db_alert)
+        session.commit()
+        session.refresh(db_alert)
+        logger.info(f"Alerta ID {db_alert.id} atualizado com sucesso.")
+        return db_alert
+    except Exception as e:
+        session.rollback()
+        logger.exception(f"Erro no banco de dados ao atualizar alerta ID {alert_id}: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno ao atualizar o alerta.")
+
+
+# --- DELETE (NOVO) ---
+@router.delete("/{alert_id}", status_code=200) # Retorna 200 OK com mensagem ou 204 No Content
+def delete_single_user_alert(
+    *,
+    session: session_dependency,
+    alert_id: int
+):
+    """
+    Deleta um alerta existente.
+    """
+    logger.info(f"Recebida requisição para deletar alerta ID: {alert_id}")
+    db_alert = session.get(UserAlert, alert_id)
+    if not db_alert:
+        logger.warning(f"Alerta ID {alert_id} não encontrado para deleção.")
+        raise HTTPException(status_code=404, detail="Alerta não encontrado")
+
+    # Aqui também deveria ter uma verificação de permissão/proprietário em um app real
+
+    try:
+        session.delete(db_alert)
+        session.commit()
+        logger.info(f"Alerta ID {alert_id} deletado com sucesso.")
+        # Pode retornar 204 No Content ou uma mensagem
+        return {"message": "Alerta deletado com sucesso"}
+        # Para retornar 204, use status_code=204 e não retorne nada (ou None)
+        # from fastapi import Response
+        # return Response(status_code=204)
+    except Exception as e:
+        session.rollback()
+        logger.exception(f"Erro no banco de dados ao deletar alerta ID {alert_id}: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno ao deletar o alerta.")
     
-    processed_data = process_vehicle_data({"results" : results_with_distance})["all_data"]
-    id_distance_list = analyze_vehicle_movement_distance(results_with_distance)
+@router.delete("/", status_code=200)
+def delete_multiple_user_alerts(
+    *,
+    session: session_dependency,
+    delete_request: DeleteAlertsRequest # Recebe o corpo da requisição
+) -> dict[str, Any]: # Retorna um dicionário com detalhes
+    """
+    Deleta múltiplos alertas existentes com base em uma lista de IDs fornecida.
+    """
+    alert_ids_to_delete = delete_request.alert_ids
+    logger.info(f"Recebida requisição para deletar alertas com IDs: {alert_ids_to_delete}")
 
-    filtered_id_distance_list = []
-    for id_distance_dict in id_distance_list :
-        if (list(id_distance_dict.values())[0]) & (list(id_distance_dict.values())[1] < 5):
-            filtered_id_distance_list.append(id_distance_dict)
-
-    list_to_get_time = []
-    for object_id_distance_filtered in filtered_id_distance_list :
-        key = list(object_id_distance_filtered.keys())[0]
-        list_to_get_time.append([i for i in processed_data if i["ordem"] == key][-1])
-    
-    print(f"Faria a consulta para {len(list_to_get_time)} onibus")
-    to_return = {}
-    for count, object_to_consult_time in enumerate(list_to_get_time) :
-        origin_lat = object_to_consult_time["latitude"]
-        origin_lng= object_to_consult_time["longitude"]
-        dest_lat=-22.984520
-        dest_lng=-43.217640
-        modal=TravelMode.BUS.value
-        departure_time=datetime.datetime.fromisoformat("2025-04-26T20:24:00-03:00")
-        print(f"Fazendo a consulta para o ônibus em lat:{origin_lat} e lng:{origin_lng}")
-        response = await get_travel_time_estimate(
-            origin_lat=float(origin_lat.replace(",", ".")),
-            origin_lng=float(origin_lng.replace(",", ".")),
-            dest_lat=dest_lat,
-            dest_lng=dest_lng,
-            modal=modal,
-            departure_time=departure_time
+    if not alert_ids_to_delete:
+        logger.warning("Requisição de deleção em lote recebida com lista de IDs vazia.")
+        raise HTTPException(
+            status_code=400,
+            detail="A lista de IDs para deletar não pode ser vazia."
         )
-        to_return[object_to_consult_time["ordem"]] = response
-        if count == 2 :
-            break
-    return {"message" : "ok", "data": to_return}
+
+    # Busca todos os alertas que correspondem aos IDs fornecidos
+    statement = select(UserAlert).where(UserAlert.id.in_(alert_ids_to_delete))
+    alerts_found = session.exec(statement).all()
+
+    if not alerts_found:
+        logger.warning(f"Nenhum alerta encontrado para os IDs fornecidos: {alert_ids_to_delete}")
+        raise HTTPException(
+            status_code=404,
+            detail="Nenhum dos alertas especificados foi encontrado."
+        )
+
+
+    deleted_count = 0
+    not_found_ids = list(set(alert_ids_to_delete) - set(alert.id for alert in alerts_found))
+    deleted_ids = []
+
+    try:
+        for alert in alerts_found:
+            session.delete(alert)
+            deleted_ids.append(alert.id) # type: ignore
+            deleted_count += 1
+
+        session.commit()
+        logger.info(f"{deleted_count} alertas deletados com sucesso (IDs: {deleted_ids}).")
+        if not_found_ids:
+             logger.warning(f"IDs de alerta fornecidos mas não encontrados: {not_found_ids}")
+
+        # Retorna um resumo da operação
+        return {
+            "message": f"{deleted_count} alerta(s) deletado(s) com sucesso.",
+            "deleted_ids": deleted_ids,
+            "not_found_ids": not_found_ids
+        }
+
+    except Exception as e:
+        session.rollback()
+        logger.exception(f"Erro no banco de dados ao deletar alertas em lote (IDs: {alert_ids_to_delete}): {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Erro interno ao deletar os alertas."
+        )

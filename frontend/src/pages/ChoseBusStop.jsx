@@ -11,7 +11,12 @@ export const ChoseBusStop = () => {
   // Pega a localização confirmada passada pela rota anterior
   const confirmedUserLocation = routerLocation.state?.userLocation;
   // Pega o ponto de ônibus selecionado no mapa desta página
-  const { busStopLocation } = useLocation();
+  const {
+    busStopLocation,
+    setBusStopLocation,
+    isStopSelectionLocked,
+    setIsStopSelectionLocked,
+  } = useLocation();
   const [showForm, setShowForm] = useState(false);
   const [line, setLine] = useState(null);
   const [selectedLine, setSelectedLine] = useState(null); // Guarda a linha selecionada no form
@@ -31,8 +36,21 @@ export const ChoseBusStop = () => {
 
   const handleConfirmStop = () => {
     if (busStopLocation) {
-      setShowForm(true); // Mostra o formulário ao confirmar o ponto
+      setShowForm(true);
+      setIsStopSelectionLocked(true);
     }
+  };
+
+  const handleResetSelection = () => {
+    setBusStopLocation(null); // Limpa o ponto selecionado no contexto
+    setSelectedLine(null); // Limpa a linha selecionada localmente
+    setShowForm(false); // Esconde o formulário/tabela
+    setBusStatusData([]); // Limpa dados da tabela/mapa
+    setStatusError(null); // Limpa erros da busca
+    setIsStatusLoading(false); // Garante que não está carregando
+    setIsStopSelectionLocked(false); // <<< DESBLOQUEIA a seleção no mapa
+    // Opcional: talvez centralizar o mapa novamente?
+    // map.flyTo(confirmedUserLocation.lat, confirmedUserLocation.lng); // Precisaria da instância do mapa aqui
   };
 
   useEffect(() => {
@@ -107,16 +125,17 @@ export const ChoseBusStop = () => {
         {/* Layout principal: Mapa à esquerda/em cima, Formulário à direita/embaixo */}
         <div className="flex flex-col lg:flex-row gap-5 p-3 items-start justify-center ">
           <div
-            className={`flex-shrink-0 w-full ${
-              showForm ? "lg:w-1/2" : "lg:w-5/2"
+            className={`min-w-125 flex-shrink-0 w-full ${
+              showForm ? "lg:w-1/2" : "lg:w-2/2"
             } transition-all duration-300 ease-in-out `}
           >
-            {" "}
             {/* Ajusta largura */}
             {/* Passa a localização confirmada para centralizar o mapa */}
             <MapBusStop
               initialCenter={confirmedUserLocation}
               busData={busStatusData} // Passa os ônibus para plotar
+              selectedBusStopLocation={busStopLocation}
+              isLocked={isStopSelectionLocked}
             />
             <div className="mt-2 text-center">
               {busStopLocation &&
@@ -128,6 +147,14 @@ export const ChoseBusStop = () => {
                     Confirmar Ponto e Preencher Dados
                   </button>
                 )}
+              {isStopSelectionLocked && (
+                <button
+                  onClick={handleResetSelection}
+                  className="focus:outline-none text-white bg-orange-600 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 transition duration-150 ease-in-out"
+                >
+                  Selecionar Ponto Novamente
+                </button>
+              )}
               {busStopLocation && ( // Mostra coordenadas selecionadas
                 <p className="text-xs text-gray-500 mt-1">
                   Ponto selecionado: Lat {busStopLocation.lat.toFixed(5)}, Lng{" "}
@@ -145,17 +172,14 @@ export const ChoseBusStop = () => {
           {/* Coluna do Formulário (condicional) */}
           {showForm && busStopLocation && (
             <div className="w-full lg:w-1/2 xl:w-1/3 space-y-5">
-              {" "}
-              {/* Adiciona space-y */}
-              {/* Formulário */}
               <div className="p-4 border rounded-lg shadow-md bg-white">
                 <h2 className="text-lg font-semibold text-gray-700 mb-4">
                   Detalhes do Alerta
                 </h2>
-                {/* Passa o ponto e a função para setar a linha */}
                 <AlertForm
                   selectedBusStop={busStopLocation}
                   setSelectedLineCallback={setSelectedLine} // Passa a função p/ AlertForm atualizar o estado aqui
+                  isLocked={isStopSelectionLocked}
                 />
               </div>
               {/* Tabela de Ônibus (renderiza se linha selecionada ou carregando) */}
@@ -167,7 +191,8 @@ export const ChoseBusStop = () => {
                 data={busStatusData}
                 isLoading={isStatusLoading}
                 error={statusError}
-                selectedLine={selectedLine} // Passa a linha selecionada
+                selectedLine={selectedLine}
+                destinationCoords={busStopLocation} // <<< Passa as coords do ponto
               />
             </div>
           )}
