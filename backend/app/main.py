@@ -4,7 +4,7 @@ load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import bus, alerts, notifications, default
+from app.api.routes import bus, alerts, notifications, default, users
 from app.db import create_all_table_and_db
 from app.db.user_alerts import UserAlert
 from app.schemas.endpoint_tags import EndpointTags
@@ -62,6 +62,10 @@ tags_metadata = [
         "name": "Testing",
         "description": "Endpoints auxiliares usados para testes durante o desenvolvimento.",
     },
+    {
+        "name": "Users",
+        "description": "Endpoints para criar e gerenciar usuários da aplicação.",
+    }
 ]
 
 app = FastAPI(
@@ -92,6 +96,7 @@ app.include_router(default.router)
 app.include_router(bus.router)
 app.include_router(alerts.router)
 app.include_router(notifications.router)
+app.include_router(users.router)
 
 @app.on_event("startup")
 async def creating_on_startup():
