@@ -26,7 +26,7 @@ celery_app.conf.update(
 celery_app.conf.beat_schedule = {
     'fetch-bus-data-every-minute': {
         'task': 'tasks.fetch_bus_data',
-        'schedule': crontab(minute='*/5'), # A cada minuto
+        'schedule': crontab(minute='*'), # A cada minuto
     },
     'fetch-alert-data-every-minute': {
         'task': 'tasks.check_bus_alerts',
