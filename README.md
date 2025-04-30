@@ -1,4 +1,4 @@
-﻿# API Alerta Bus Rio 🚌💨
+﻿# API Alerta Bus Rio 🚌
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
