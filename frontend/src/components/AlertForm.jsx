@@ -5,6 +5,7 @@ import * as yup from "yup";
 import { formatISO, subMinutes } from "date-fns";
 import { createAlert } from "../services/alerts"; // Sua função de API
 import { fetchBusLines } from "../services/bus";
+import { sendConfirmationEmail } from "../services/notifications";
 // Importe seu componente DatePicker favorito
 // import DatePicker from "react-datepicker";
 // import "react-datepicker/dist/react-datepicker.css";
@@ -69,6 +70,7 @@ export const AlertForm = ({ selectedBusStop, setSelectedLineCallback }) => {
     setIsSubmitting(true);
     setSubmitStatus(null);
     setSubmitError(null);
+    let alertCreatedSuccessfully = false;
 
     try {
       const endDate = data.start_datetime; // Data/Hora selecionada pelo usuário
@@ -93,7 +95,64 @@ export const AlertForm = ({ selectedBusStop, setSelectedLineCallback }) => {
       console.log("Enviando Payload do Alerta:", payload);
       const createdAlert = await createAlert(payload);
       console.log("Alerta criado no backend:", createdAlert);
-      setSubmitStatus("Alerta criado com sucesso!");
+      setSubmitStatus(
+        "Alerta criado com sucesso! Enviando email de confirmação..."
+      );
+      alertCreatedSuccessfully = true; // Marca sucesso
+
+      // --- CHAMA A API DE CONFIRMAÇÃO APÓS SUCESSO ---
+      if (createdAlert) {
+        // Garante que temos os dados do alerta criado
+        // Prepara dados para o email de confirmação
+        // Precisamos dos objetos 'time' que foram validados
+        // Se 'data' ainda tiver datetime, precisamos converter aqui ou pegar do createdAlert se ele retornar time
+        let startTimeObj, endTimeObj;
+        // Assumindo que data.start_datetime ainda é Date do picker
+        const endDate = data.start_datetime;
+        const startDate = subMinutes(endDate, 30);
+        // Converte para time local SP (poderia ser uma função util)
+        const saoPauloTZ =
+          /* Obtenha ZoneInfo("America/Sao_Paulo") aqui ou importe */
+          (startTimeObj = startDate
+            .toLocaleTimeString("sv-SE", {
+              timeZone: "America/Sao_Paulo",
+              hour12: false,
+            })
+            .split(" ")[0]); // Formato HH:MM:SS
+        endTimeObj = endDate
+          .toLocaleTimeString("sv-SE", {
+            timeZone: "America/Sao_Paulo",
+            hour12: false,
+          })
+          .split(" ")[0];
+
+        const confirmationPayload = {
+          recipient_email: createdAlert.user_email, // Usa o email do alerta criado
+          bus_line: createdAlert.bus_line,
+          stop_lat: createdAlert.stop_latitude,
+          stop_lng: createdAlert.stop_longitude,
+          // Envia a HORA (formato HH:MM:SS esperado pelo Pydantic 'time')
+          start_time: startTimeObj,
+          end_time: endTimeObj,
+        };
+
+        try {
+          console.log("Enviando payload de confirmação:", confirmationPayload);
+          // Chama a nova função da API (não precisa de await se backend usa BackgroundTasks)
+          await sendConfirmationEmail(confirmationPayload);
+          console.log("Solicitação de email de confirmação enviada.");
+          // Atualiza status para indicar sucesso completo
+          setSubmitStatus("Alerta criado e email de confirmação solicitado!");
+        } catch (emailError) {
+          console.error("Falha ao solicitar email de confirmação:", emailError);
+          // Informa o usuário, mas o alerta principal foi criado
+          setSubmitStatus(
+            "Alerta criado, mas falha ao enviar email de confirmação."
+          );
+        }
+      }
+      // --- FIM CHAMADA DE CONFIRMAÇÃO ---
+
       reset(); // Limpa o formulário
     } catch (error) {
       console.error("Falha ao criar alerta:", error);
@@ -171,7 +230,6 @@ export const AlertForm = ({ selectedBusStop, setSelectedLineCallback }) => {
         >
           Data/Hora de Início dos Alertas:
           <span className="text-xs text-gray-500">
-            {" "}
             (O alerta será diário 30min antes deste horário)
           </span>
         </label>
