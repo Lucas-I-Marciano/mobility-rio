@@ -6,3 +6,4 @@ class EndpointTags(str, Enum):
     ALERTS = "Alerts"
     DEFAULT = "Welcome"
     ETA_CALCULATION = "ETA Calculation"
+    USERS = "Users"
