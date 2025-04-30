@@ -85,3 +85,38 @@ EMAIL_CONFIRMATION_BODY_HTML = """
 </body>
 </html>
 """
+
+EMAIL_SEND_ALERT_HTML = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {{ font-family: sans-serif; line-height: 1.6; color: #333; }}
+            .container {{ padding: 20px; border: 1px solid #ddd; border-radius: 5px; max-width: 600px; margin: 20px auto; background-color: #f9f9f9; }}
+            h2 {{ color: #2a4b7c; }}
+            strong {{ color: #0056b3; }}
+            .footer {{ font-size: 0.9em; color: #777; margin-top: 15px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Ônibus Chegando!</h2>
+            <p>Olá!</p>
+            <p>O ônibus <strong>{bus_ordem}</strong> da linha <strong>{bus_line}</strong> está a aproximadamente <strong>{time} minutos</strong> de distância do ponto cadastrado.</p>
+            <p>Por favor, dirija-se ao ponto de ônibus.</p>
+            <hr>
+            <p class="footer">Obrigado por usar o Alerta Bus Rio!</p>
+        </div>
+    </body>
+</html>
+"""
+
+EMAIL_SEND_ALERT_PLAIN = """
+Olá!
+
+O ônibus {bus_ordem} da linha {bus_line} está a aproximadamente {time} minutos de distância do ponto cadastrado.
+
+Por favor, dirija-se ao ponto de ônibus.
+
+Obrigado por usar o Alerta Bus Rio!
+"""
